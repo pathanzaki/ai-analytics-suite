@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Analytics Suite - Transform Your Data</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #8b5cf6;
+            --accent: #ec4899;
+            --bg-dark: #0f172a;
+            --bg-darker: #051028;
+            --text-light: #ffffff;
+            --text-muted: #cbd5e1;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            background: linear-gradient(135deg, var(--bg-darker) 0%, #1e3a8a 50%, var(--bg-dark) 100%);
+            color: var(--text-light);
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Animated Background */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.3;
+        }
+
+        .blob-1 {
+            width: 500px;
+            height: 500px;
+            background: linear-gradient(135deg, #2563eb, #8b5cf6);
+            top: -100px;
+            right: -100px;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        .blob-2 {
+            width: 400px;
+            height: 400px;
+            background: linear-gradient(135deg, #ec4899, #f43f5e);
+            bottom: -50px;
+            left: -50px;
+            animation: float 25s ease-in-out infinite reverse;
+        }
+
+        .blob-3 {
+            width: 400px;
+            height: 400px;
+            background: linear-gradient(135deg, #06b6d4, #2563eb);
+            top: 50%;
+            left: 5%;
+            animation: float 22s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(20px, -30px) scale(1.05); }
+            50% { transform: translate(-20px, 30px) scale(0.95); }
+            75% { transform: translate(30px, 20px) scale(1.05); }
+        }
+
+        /* Grid Background */
+        .grid-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(0deg, transparent 24%, rgba(255, 255, 255, 0.02) 25%, rgba(255, 255, 255, 0.02) 26%, transparent 27%, transparent 74%, rgba(255, 255, 255, 0.02) 75%, rgba(255, 255, 255, 0.02) 76%, transparent 77%, transparent),
+                linear-gradient(90deg, transparent 24%, rgba(255, 255, 255, 0.02) 25%, rgba(255, 255, 255, 0.02) 26%, transparent 27%, transparent 74%, rgba(255, 255, 255, 0.02) 75%, rgba(255, 255, 255, 0.02) 76%, transparent 77%, transparent);
+            background-size: 60px 60px;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* Content wrapper */
+        .content {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header */
+        header {
+            backdrop-filter: blur(10px);
+            background: rgba(15, 23, 42, 0.7);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 20px 50px;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 26px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #2563eb, #8b5cf6, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -1px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 40px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .btn-header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.25);
+        }
+
+        .btn-header:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(37, 99, 235, 0.4);
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 120px 50px 60px;
+            text-align: center;
+        }
+
+        .hero-content {
+            max-width: 900px;
+            animation: slideUp 1s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hero h1 {
+            font-size: clamp(42px, 8vw, 70px);
+            font-weight: 950;
+            line-height: 1.1;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero h1 span {
+            background: linear-gradient(135deg, #2563eb, #8b5cf6, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-subtitle {
+            font-size: 20px;
+            color: var(--text-muted);
+            margin-bottom: 50px;
+            line-height: 1.6;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 60px;
+        }
+
+        .btn {
+            padding: 14px 36px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            box-shadow: 0 10px 30px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 45px rgba(37, 99, 235, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.08);
+            color: white;
+            border: 1.5px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-4px);
+        }
+
+        /* Features Section */
+        .features-section {
+            padding: 120px 50px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 80px;
+        }
+
+        .section-title h2 {
+            font-size: 48px;
+            font-weight: 900;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #ffffff, #cbd5e1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .section-title p {
+            color: var(--text-muted);
+            font-size: 18px;
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 35px;
+            margin-bottom: 80px;
+        }
+
+        .card-3d {
+            perspective: 1200px;
+            height: 420px;
+            cursor: pointer;
+        }
+
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            transform-style: preserve-3d;
+        }
+
+        .card-3d:hover .card-inner {
+            transform: rotateY(180deg) rotateX(5deg);
+        }
+
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 20px;
+            padding: 45px 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        .card-front {
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.1), rgba(139, 92, 246, 0.08));
+        }
+
+        .card-back {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(236, 72, 153, 0.1));
+            transform: rotateY(180deg);
+            color: var(--text-muted);
+            line-height: 1.8;
+            font-size: 15px;
+        }
+
+        .card-icon {
+            font-size: 52px;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+
+        .card-front h3 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #2563eb, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 700;
+        }
+
+        .card-front p {
+            color: var(--text-muted);
+            font-size: 15px;
+            line-height: 1.5;
+        }
+
+        /* Stats Section */
+        .stats-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 35px;
+            margin: 100px 0;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 18px;
+            padding: 40px 30px;
+            backdrop-filter: blur(15px);
+            text-align: center;
+            transition: all 0.4s ease;
+        }
+
+        .stat-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-8px);
+            border-color: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 20px 40px rgba(37, 99, 235, 0.1);
+        }
+
+        .stat-number {
+            font-size: 48px;
+            font-weight: 950;
+            background: linear-gradient(135deg, #2563eb, #8b5cf6, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 12px;
+        }
+
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            padding: 100px 50px;
+            text-align: center;
+        }
+
+        .cta-card {
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.08), rgba(139, 92, 246, 0.08));
+            border: 1.5px solid rgba(255, 255, 255, 0.1);
+            border-radius: 30px;
+            padding: 80px 50px;
+            backdrop-filter: blur(20px);
+            max-width: 900px;
+            margin: 0 auto;
+            box-shadow: 0 20px 60px rgba(37, 99, 235, 0.1);
+        }
+
+        .cta-card h2 {
+            font-size: 48px;
+            font-weight: 900;
+            margin-bottom: 25px;
+            background: linear-gradient(135deg, #ffffff, #cbd5e1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .cta-card p {
+            color: var(--text-muted);
+            font-size: 18px;
+            margin-bottom: 40px;
+            line-height: 1.7;
+        }
+
+        /* Footer */
+        footer {
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 50px;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 14px;
+            backdrop-filter: blur(10px);
+            margin-top: 60px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 15px;
+                padding: 15px 20px;
+            }
+
+            .nav-links {
+                gap: 20px;
+            }
+
+            .nav-links a {
+                font-size: 13px;
+            }
+
+            .hero {
+                padding: 100px 20px 40px;
+                min-height: auto;
+            }
+
+            .hero h1 {
+                font-size: 36px;
+                line-height: 1.2;
+            }
+
+            .hero-subtitle {
+                font-size: 16px;
+                margin-bottom: 30px;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            .features-section {
+                padding: 60px 20px;
+            }
+
+            .section-title h2 {
+                font-size: 32px;
+            }
+
+            .cards-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .card-3d {
+                height: 350px;
+            }
+
+            .cta-section {
+                padding: 60px 20px;
+            }
+
+            .cta-card {
+                padding: 40px 20px;
+                border-radius: 20px;
+            }
+
+            .cta-card h2 {
+                font-size: 28px;
+            }
+
+            .cta-card p {
+                font-size: 16px;
+            }
+
+            footer {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="grid-bg"></div>
+    <div class="bg-animation">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <div class="content">
+        <!-- Header -->
+        <header>
+            <div class="logo">◆ Analytics</div>
+            <div class="nav-links">
+                <a href="#features">Features</a>
+                <a href="#stats">Impact</a>
+                <a href="#cta">Get Started</a>
+                <button class="btn-header" onclick="window.location.href='/dashboard'">Dashboard</button>
+            </div>
+        </header>
+
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="hero-content">
+                <h1>Transform Your Data Into <span>Actionable Insights</span></h1>
+                <p class="hero-subtitle">Upload CSV or Excel files and instantly get AI-powered analysis, anomaly detection, beautiful visualizations, and interactive insights powered by advanced machine learning.</p>
+                <div class="hero-buttons">
+                    <button class="btn btn-primary" onclick="window.location.href='/dashboard'">🚀 Launch Dashboard</button>
+                    <button class="btn btn-secondary" onclick="document.getElementById('features').scrollIntoView({behavior:'smooth'})">Learn More →</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="features-section" id="features">
+            <div class="section-title">
+                <h2>Powerful Features</h2>
+                <p>Everything you need for professional data analysis</p>
+            </div>
+
+            <div class="cards-grid">
+                <div class="card-3d">
+                    <div class="card-inner">
+                        <div class="card-front">
+                            <div>
+                                <div class="card-icon">📊</div>
+                                <h3>Data Profiling</h3>
+                                <p>Comprehensive analysis of your dataset structure and statistics</p>
+                            </div>
+                        </div>
+                        <div class="card-back">
+                            Automatically profile your data to understand structure, data types, missing values, distributions, and detailed statistical metrics with one click.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-3d">
+                    <div class="card-inner">
+                        <div class="card-front">
+                            <div>
+                                <div class="card-icon">🤖</div>
+                                <h3>AI Insights</h3>
+                                <p>Intelligent analysis powered by cutting-edge AI technology</p>
+                            </div>
+                        </div>
+                        <div class="card-back">
+                            Get instant, actionable insights. Our AI identifies patterns, anomalies, trends, and business implications in your data automatically.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-3d">
+                    <div class="card-inner">
+                        <div class="card-front">
+                            <div>
+                                <div class="card-icon">🎯</div>
+                                <h3>Anomaly Detection</h3>
+                                <p>Automatically identify outliers and unusual patterns</p>
+                            </div>
+                        </div>
+                        <div class="card-back">
+                            Advanced IQR-based detection finds outliers and unusual values in your numeric data instantly, helping you spot data quality issues.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-3d">
+                    <div class="card-inner">
+                        <div class="card-front">
+                            <div>
+                                <div class="card-icon">💬</div>
+                                <h3>AI Chat</h3>
+                                <p>Ask natural language questions about your data</p>
+                            </div>
+                        </div>
+                        <div class="card-back">
+                            Interactive AI assistant that understands your dataset. Ask any question in plain English and get instant, contextual answers with data backing.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-3d">
+                    <div class="card-inner">
+                        <div class="card-front">
+                            <div>
+                                <div class="card-icon">📈</div>
+                                <h3>Visualizations</h3>
+                                <p>Beautiful interactive charts and statistical graphs</p>
+                            </div>
+                        </div>
+                        <div class="card-back">
+                            Explore your data visually with interactive histograms, correlation matrices, distribution charts, and statistical visualizations.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-3d">
+                    <div class="card-inner">
+                        <div class="card-front">
+                            <div>
+                                <div class="card-icon">📥</div>
+                                <h3>Export Reports</h3>
+                                <p>Download comprehensive analysis reports</p>
+                            </div>
+                        </div>
+                        <div class="card-back">
+                            Export complete analysis in JSON, CSV, or Excel format. Share findings with your team, generate reports, and integrate with other tools.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats -->
+            <div class="stats-section" id="stats">
+                <div class="stat-card">
+                    <div class="stat-number">∞</div>
+                    <div class="stat-label">Free & Unlimited</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">100MB</div>
+                    <div class="stat-label">Max File Size</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">CSV/XLSX</div>
+                    <div class="stat-label">Supported Formats</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">⚡</div>
+                    <div class="stat-label">Lightning Fast</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="cta-section" id="cta">
+            <div class="cta-card">
+                <h2>Ready to Unlock Your Data's Potential?</h2>
+                <p>Start analyzing your datasets with AI-powered insights. No credit card required. No hidden fees. Completely free and unlimited.</p>
+                <button class="btn btn-primary" onclick="window.location.href='/dashboard'" style="font-size: 18px; padding: 16px 50px; margin-top: 20px;">
+                    Launch Analytics Suite →
+                </button>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer>
+            <p>© 2024 AI Analytics Suite. Powered by Advanced Machine Learning.</p>
+        </footer>
+    </div>
+
+    <script>
+        // Parallax effect
+        window.addEventListener('scroll', () => {
+            const blobs = document.querySelectorAll('.blob');
+            const scrollY = window.scrollY;
+            blobs.forEach((blob, index) => {
+                const speed = 0.05 + (index * 0.02);
+                blob.style.transform = `translateY(${scrollY * speed}px) scale(${1 + (scrollY * 0.0001)})`;
+            });
+        });
+
+        // Smooth scroll for navigation
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                const href = this.getAttribute('href');
+                if (href !== '#') {
+                    e.preventDefault();
+                    const element = document.querySelector(href);
+                    if (element) {
+                        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

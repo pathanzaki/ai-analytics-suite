@@ -1,0 +1,1391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Analytics Suite — Dashboard</title>
+
+<!-- Chart.js for visual BI-style charts -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+
+<style>
+:root{
+    --bg:#07111f;
+    --sidebar:#091525;
+    --card:#101f33;
+    --card2:#13263e;
+    --border:#203651;
+    --text:#f4f7fb;
+    --muted:#91a4bb;
+    --accent:#36b8ff;
+    --accent2:#7c5cff;
+    --green:#3ddc97;
+    --yellow:#ffc857;
+    --red:#ff6685;
+    --cyan:#39d8ff;
+    --shadow:0 14px 40px rgba(0,0,0,.18);
+}
+
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--text)}
+button,input{font:inherit}
+button{cursor:pointer}
+
+.app{display:flex;min-height:100vh}
+
+.sidebar{
+    width:235px;
+    position:fixed;
+    inset:0 auto 0 0;
+    background:linear-gradient(180deg,#091525 0%,#07111e 100%);
+    border-right:1px solid #172b43;
+    display:flex;
+    flex-direction:column;
+    z-index:20;
+}
+
+.brand{
+    padding:24px 20px;
+    font-size:20px;
+    font-weight:800;
+    letter-spacing:-.4px;
+    border-bottom:1px solid #172b43;
+}
+.brand span{color:#8f79ff}
+
+.nav{padding:16px 10px}
+.nav button{
+    width:100%;
+    border:0;
+    background:transparent;
+    color:#9aacc1;
+    text-align:left;
+    padding:13px 14px;
+    border-radius:10px;
+    margin-bottom:5px;
+    font-weight:600;
+}
+.nav button:hover,.nav button.active{
+    color:white;
+    background:#13263e;
+}
+.nav button.active{box-shadow:inset 3px 0 var(--accent)}
+
+.user-box{
+    margin:auto 10px 10px;
+    border:1px solid #1d334e;
+    border-radius:12px;
+    padding:12px;
+    background:#0c1b2d;
+}
+.user-name{font-weight:700;font-size:13px}
+.user-email{font-size:11px;color:var(--muted);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.logout{
+    margin-top:10px;
+    width:100%;
+    border:1px solid #253c57;
+    background:transparent;
+    color:#ff8aa2;
+    border-radius:8px;
+    padding:9px;
+}
+.logout:hover{background:#281a28}
+
+.main{
+    margin-left:235px;
+    width:calc(100% - 235px);
+    padding:25px 26px 45px;
+}
+
+.topbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    gap:20px;
+    margin-bottom:20px;
+}
+.title-wrap h1{
+    margin:0;
+    font-size:27px;
+    letter-spacing:-.7px;
+}
+.title-wrap p{
+    margin:6px 0 0;
+    color:var(--muted);
+    font-size:13px;
+}
+.quality-badge{
+    min-width:155px;
+    text-align:right;
+}
+.quality-number{font-size:30px;font-weight:850}
+.quality-label{font-size:10px;color:var(--muted);letter-spacing:.6px}
+
+.kpis{
+    display:grid;
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:14px;
+    margin-bottom:15px;
+}
+.kpi{
+    background:linear-gradient(145deg,#112239,#0e1c2e);
+    border:1px solid var(--border);
+    border-radius:13px;
+    padding:17px 18px;
+    box-shadow:var(--shadow);
+}
+.kpi-label{
+    color:#8ea3ba;
+    text-transform:uppercase;
+    letter-spacing:.7px;
+    font-size:10px;
+    font-weight:800;
+}
+.kpi-value{
+    font-size:27px;
+    font-weight:850;
+    margin-top:8px;
+}
+.kpi-sub{font-size:11px;color:#71879f;margin-top:3px}
+
+.grid{
+    display:grid;
+    grid-template-columns:1.45fr 1fr;
+    gap:15px;
+    margin-bottom:15px;
+}
+.grid.equal{grid-template-columns:1fr 1fr}
+
+.card{
+    background:linear-gradient(145deg,#102137,#0d1c2e);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:17px;
+    box-shadow:var(--shadow);
+    min-width:0;
+}
+.card-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+    margin-bottom:13px;
+}
+.card-title{
+    font-size:14px;
+    font-weight:800;
+}
+.card-note{font-size:10px;color:var(--muted)}
+.chart-box{height:255px;position:relative}
+.chart-box.small{height:215px}
+.chart-box.tall{height:285px}
+
+.donut-layout{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    align-items:center;
+    gap:10px;
+}
+.donut-box{height:220px;position:relative}
+.legend{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    max-height:190px;
+    overflow:auto;
+}
+.legend-row{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-size:11px;
+    color:#bdcadd;
+}
+.dot{width:9px;height:9px;border-radius:50%;flex:0 0 9px}
+.legend-value{margin-left:auto;color:white;font-weight:700}
+
+.gauge-wrap{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    align-items:center;
+    min-height:215px;
+}
+.gauge{height:210px;position:relative}
+.gauge-center{
+    position:absolute;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-direction:column;
+    pointer-events:none;
+}
+.gauge-center strong{font-size:29px}
+.gauge-center span{font-size:10px;color:var(--muted);text-transform:uppercase}
+
+.insights{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:10px;
+}
+.insight{
+    background:#13263e;
+    border:1px solid #203a59;
+    border-left:3px solid var(--accent);
+    border-radius:9px;
+    padding:13px;
+    min-height:95px;
+}
+.insight.warning{border-left-color:var(--yellow)}
+.insight.success{border-left-color:var(--green)}
+.insight-title{font-size:11px;font-weight:800;margin-bottom:7px}
+.insight-text{font-size:11px;line-height:1.55;color:#b7c6d8}
+
+.heatmap-wrap{overflow:auto}
+.heatmap{
+    display:grid;
+    gap:2px;
+    min-width:500px;
+}
+.hm-cell{
+    min-height:40px;
+    padding:8px 6px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:4px;
+    font-size:10px;
+    font-weight:700;
+}
+.hm-label{background:#0d1b2d;color:#a9bad0;justify-content:flex-start}
+.hm-head{background:#0c1a2b;color:#a9bad0}
+
+.anomaly-summary{
+    display:grid;
+    grid-template-columns:170px 1fr;
+    gap:15px;
+    align-items:center;
+}
+.anomaly-chart{height:170px;position:relative}
+.anomaly-info h3{margin:0 0 7px;font-size:18px}
+.anomaly-info p{margin:5px 0;color:var(--muted);font-size:11px;line-height:1.5}
+.alert-list{margin-top:10px;display:flex;flex-direction:column;gap:7px}
+.alert{
+    padding:9px 10px;
+    border:1px solid #443344;
+    background:#211d2b;
+    border-radius:8px;
+    font-size:11px;
+}
+.alert b{color:#ff93a9}
+
+.columns{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+}
+.column-pill{
+    padding:7px 10px;
+    border:1px solid #27415e;
+    background:#11243a;
+    border-radius:999px;
+    color:#b9c9da;
+    font-size:10px;
+}
+.column-pill b{color:#fff}
+
+.actions{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+}
+.action{
+    border:1px solid #28415e;
+    background:#10243a;
+    color:#eaf2fa;
+    border-radius:8px;
+    padding:9px 12px;
+    font-size:11px;
+    font-weight:700;
+}
+.action:hover{background:#16304d}
+.action.primary{background:#147ab0;border-color:#198dca}
+
+.loading{
+    min-height:70vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:var(--muted);
+    font-size:14px;
+}
+
+.empty{
+    padding:40px;
+    text-align:center;
+    color:var(--muted);
+}
+
+
+.mobile-menu{
+    display:none;
+}
+
+.add-data-btn{
+    border:1px solid #2b8ec4;
+    background:linear-gradient(135deg,#1688c5,#2769d8);
+    color:white;
+    border-radius:9px;
+    padding:10px 15px;
+    font-size:11px;
+    font-weight:800;
+    box-shadow:0 7px 18px rgba(24,126,190,.18);
+}
+.add-data-btn:hover{filter:brightness(1.08);transform:translateY(-1px)}
+
+.upload-panel{
+    display:none;
+    margin-bottom:15px;
+}
+.upload-panel.show{display:block}
+
+.drop-zone{
+    border:1.5px dashed #2e648b;
+    background:linear-gradient(145deg,#10283f,#0d1d30);
+    border-radius:14px;
+    padding:30px 20px;
+    text-align:center;
+    transition:.2s;
+}
+.drop-zone.dragover{
+    border-color:#36b8ff;
+    background:#112d46;
+    box-shadow:0 0 0 3px rgba(54,184,255,.10);
+}
+.upload-icon{font-size:35px;margin-bottom:8px}
+.drop-title{font-size:16px;font-weight:800}
+.drop-sub{font-size:11px;color:#91a4bb;margin:7px 0 15px}
+.file-input{display:none}
+.choose-btn{
+    display:inline-block;
+    border:1px solid #2a8fc6;
+    background:#147ab0;
+    color:white;
+    border-radius:8px;
+    padding:10px 16px;
+    font-size:11px;
+    font-weight:800;
+}
+.selected-file{
+    margin:14px auto 0;
+    max-width:500px;
+    padding:9px 12px;
+    border-radius:8px;
+    background:#132b44;
+    border:1px solid #254965;
+    color:#c8d7e6;
+    font-size:11px;
+    display:none;
+}
+.upload-actions{
+    display:flex;
+    justify-content:center;
+    gap:8px;
+    margin-top:12px;
+}
+.upload-status{
+    text-align:center;
+    margin-top:10px;
+    font-size:11px;
+    color:#91a4bb;
+}
+
+
+@media(max-width:1050px){
+    .sidebar{width:205px}
+    .main{margin-left:205px;width:calc(100% - 205px)}
+    .kpis{grid-template-columns:repeat(2,1fr)}
+    .grid,.grid.equal{grid-template-columns:1fr}
+}
+@media(max-width:700px){
+    .sidebar{
+        transform:translateX(-100%);
+        transition:.2s;
+    }
+    .sidebar.open{transform:translateX(0)}
+    .main{margin-left:0;width:100%;padding:18px 12px 35px}
+    .mobile-menu{display:block;border:1px solid #29425d;background:#10243a;color:white;border-radius:8px;padding:8px 10px}
+    .topbar{align-items:flex-start}
+    .kpis{grid-template-columns:1fr 1fr;gap:9px}
+    .kpi{padding:13px}
+    .kpi-value{font-size:22px}
+    .insights{grid-template-columns:1fr}
+    .donut-layout,.gauge-wrap,.anomaly-summary{grid-template-columns:1fr}
+    .donut-box,.gauge,.anomaly-chart{height:190px}
+}
+</style>
+</head>
+
+<body>
+<div class="app">
+
+<aside class="sidebar" id="sidebar">
+    <div class="brand">📊 <span>Zaki AI Analytics</span></div>
+
+    <nav class="nav">
+        <button class="active" onclick="goDashboard()">🏠 Dashboard</button>
+        <button onclick="goAnalyses()">📁 My Analyses</button>
+        <button onclick="openUpload()">📤 Upload Data</button>
+    </nav>
+
+    <div class="user-box">
+        <div class="user-name" id="userName">Loading...</div>
+        <div class="user-email" id="userEmail"></div>
+        <button class="logout" onclick="logout()">🚪 Logout</button>
+    </div>
+</aside>
+
+<main class="main">
+    <div id="loading" class="loading">Loading dashboard...</div>
+
+    <div id="dashboard" style="display:none">
+
+        <div class="topbar">
+            <div class="title-wrap">
+                <h1 id="fileName">Analytics Dashboard</h1>
+                <p id="fileMeta">Loading dataset...</p>
+            </div>
+            <button class="mobile-menu" onclick="toggleSidebar()">☰</button>
+            <div style="display:flex;align-items:flex-end;gap:14px">
+                <button class="add-data-btn" onclick="openUpload()">＋ Add New CSV</button>
+                <div class="quality-badge">
+                    <div class="quality-number" id="qualityTop">--%</div>
+                    <div class="quality-label">DATA QUALITY</div>
+                </div>
+            </div>
+        </div>
+
+
+        <section class="card upload-panel" id="uploadPanel">
+            <div class="card-head">
+                <div class="card-title">📤 Add New Dataset</div>
+                <button class="action" onclick="closeUpload()">✕ Close</button>
+            </div>
+
+            <div class="drop-zone" id="dropZone">
+                <div class="upload-icon">📁</div>
+                <div class="drop-title">Upload a new CSV or Excel file</div>
+                <div class="drop-sub">Drag & drop your file here, or choose a file from your computer</div>
+
+                <label class="choose-btn">
+                    Choose File
+                    <input id="fileInput" class="file-input" type="file"
+                           accept=".csv,.xlsx,.xls">
+                </label>
+
+                <div class="selected-file" id="selectedFile"></div>
+
+                <div class="upload-actions">
+                    <button class="action primary" id="uploadBtn" onclick="uploadNewFile()" disabled>
+                        📤 Upload & Analyze
+                    </button>
+                </div>
+
+                <div class="upload-status" id="uploadStatus">
+                    Supported: CSV, XLSX, XLS
+                </div>
+            </div>
+        </section>
+
+        <section class="kpis">
+            <div class="kpi">
+                <div class="kpi-label">Rows</div>
+                <div class="kpi-value" id="rowsKpi">--</div>
+                <div class="kpi-sub">Total records</div>
+            </div>
+            <div class="kpi">
+                <div class="kpi-label">Columns</div>
+                <div class="kpi-value" id="colsKpi">--</div>
+                <div class="kpi-sub">Dataset fields</div>
+            </div>
+            <div class="kpi">
+                <div class="kpi-label">Anomalies</div>
+                <div class="kpi-value" id="anomalyKpi">--</div>
+                <div class="kpi-sub">Detected issues</div>
+            </div>
+            <div class="kpi">
+                <div class="kpi-label">Data Quality</div>
+                <div class="kpi-value" id="qualityKpi">--%</div>
+                <div class="kpi-sub">Overall score</div>
+            </div>
+        </section>
+
+        <div class="grid">
+            <section class="card">
+                <div class="card-head">
+                    <div class="card-title">📊 Numeric Overview</div>
+                    <div class="card-note">Average values</div>
+                </div>
+                <div class="chart-box">
+                    <canvas id="numericChart"></canvas>
+                </div>
+            </section>
+
+            <section class="card">
+                <div class="card-head">
+                    <div class="card-title">🍩 Data Type Distribution</div>
+                    <div class="card-note">Columns</div>
+                </div>
+                <div class="donut-layout">
+                    <div class="donut-box"><canvas id="typeChart"></canvas></div>
+                    <div class="legend" id="typeLegend"></div>
+                </div>
+            </section>
+        </div>
+
+        <div class="grid equal">
+            <section class="card">
+                <div class="card-head">
+                    <div class="card-title">📈 Statistical Trend</div>
+                    <div class="card-note" id="trendLabel">Mean / Median</div>
+                </div>
+                <div class="chart-box">
+                    <canvas id="trendChart"></canvas>
+                </div>
+            </section>
+
+            <section class="card">
+                <div class="card-head">
+                    <div class="card-title">💯 Data Quality Gauge</div>
+                    <div class="card-note">Overall quality</div>
+                </div>
+                <div class="gauge-wrap">
+                    <div class="gauge">
+                        <canvas id="qualityChart"></canvas>
+                        <div class="gauge-center">
+                            <strong id="qualityCenter">--%</strong>
+                            <span>Quality</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="insight success" style="margin-bottom:9px">
+                            <div class="insight-title">✓ QUALITY STATUS</div>
+                            <div class="insight-text" id="qualityText">Analyzing dataset...</div>
+                        </div>
+                        <div class="insight">
+                            <div class="insight-title">📌 COLUMNS</div>
+                            <div class="insight-text" id="numericText">-- numeric columns detected.</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <div class="grid equal">
+            <section class="card">
+                <div class="card-head">
+                    <div class="card-title">🔗 Correlation Analysis</div>
+                    <div class="card-note">Numeric relationships</div>
+                </div>
+                <div class="heatmap-wrap">
+                    <div id="heatmap"></div>
+                </div>
+            </section>
+
+            <section class="card">
+                <div class="card-head">
+                    <div class="card-title">⚠️ Anomaly Detection</div>
+                    <div class="card-note">Outlier overview</div>
+                </div>
+                <div class="anomaly-summary">
+                    <div class="anomaly-chart"><canvas id="anomalyChart"></canvas></div>
+                    <div class="anomaly-info">
+                        <h3 id="anomalyTitle">No anomalies</h3>
+                        <p id="anomalyDescription">No unusual values were detected.</p>
+                        <div class="alert-list" id="alertList"></div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <section class="card" style="margin-bottom:15px">
+            <div class="card-head">
+                <div class="card-title">🤖 AI Insights</div>
+                <div class="actions">
+                    <button class="action primary" onclick="downloadAnalysis()">📥 Download</button>
+                    <button class="action" onclick="toggleFavorite()">⭐ Favorite</button>
+                    <button class="action" onclick="shareAnalysis()">🔗 Share</button>
+                </div>
+            </div>
+
+            <div class="insights" id="insights"></div>
+        </section>
+
+        <section class="card">
+            <div class="card-head">
+                <div class="card-title">🧩 Dataset Columns</div>
+                <div class="card-note">Detected automatically</div>
+            </div>
+            <div class="columns" id="columns"></div>
+        </section>
+
+    </div>
+</main>
+</div>
+
+<script>
+let charts = {};
+let currentAnalysis = null;
+let analyses = [];
+
+const chartColors = [
+    '#36b8ff','#7c5cff','#3ddc97','#ffc857','#ff6685',
+    '#39d8ff','#ff8f5a','#a66cff','#58d68d','#f78fb3'
+];
+
+function esc(value){
+    return String(value ?? '')
+        .replaceAll('&','&amp;')
+        .replaceAll('<','&lt;')
+        .replaceAll('>','&gt;')
+        .replaceAll('"','&quot;')
+        .replaceAll("'","&#039;");
+}
+
+function num(value){
+    const n = Number(value);
+    return Number.isFinite(n) ? n : 0;
+}
+
+function formatNumber(value){
+    const n = Number(value);
+    if(!Number.isFinite(n)) return '0';
+    return n.toLocaleString('en-IN', {maximumFractionDigits:2});
+}
+
+async function api(url, options={}){
+    options.credentials = 'include';
+    options.headers = {
+        'Accept':'application/json',
+        ...(options.headers || {})
+    };
+
+    const response = await fetch(url, options);
+
+    if(response.status === 401){
+        window.location.href = '/login';
+        return null;
+    }
+
+    return response;
+}
+
+async function loadUser(){
+    const response = await api('/api/auth/me');
+    if(!response) return false;
+
+    if(!response.ok){
+        window.location.href='/login';
+        return false;
+    }
+
+    const user = await response.json();
+    document.getElementById('userName').textContent =
+        [user.first_name,user.last_name].filter(Boolean).join(' ') || user.username || 'User';
+    document.getElementById('userEmail').textContent = user.email || '';
+    return true;
+}
+
+async function loadAnalysis(){
+    const response = await api('/api/analyses');
+    if(!response || !response.ok){
+        showEmpty('Unable to load analyses.');
+        return;
+    }
+
+    const data = await response.json();
+    analyses = data.analyses || data || [];
+
+    if(!Array.isArray(analyses) || !analyses.length){
+        showEmpty('No analysis found. Upload a CSV or Excel file first.');
+        return;
+    }
+
+    // Show the most recent analysis.
+    const first = analyses[0];
+    const id = first.id || first.analysis_id;
+
+    if(!id){
+        showEmpty('Analysis ID was not returned by the server.');
+        return;
+    }
+
+    const detailResponse = await api('/api/analyses/' + id);
+
+    if(!detailResponse || !detailResponse.ok){
+        showEmpty('Unable to load analysis details.');
+        return;
+    }
+
+    const payload = await detailResponse.json();
+
+    // Support both {analysis:{...}} and direct analysis objects.
+    currentAnalysis = payload.analysis || payload;
+
+    renderDashboard(currentAnalysis);
+}
+
+function showEmpty(message){
+    document.getElementById('loading').innerHTML =
+        '<div class="empty">' + esc(message) + '</div>';
+}
+
+function destroyChart(name){
+    if(charts[name]){
+        charts[name].destroy();
+        charts[name]=null;
+    }
+}
+
+function baseChartOptions(){
+    return {
+        responsive:true,
+        maintainAspectRatio:false,
+        plugins:{
+            legend:{
+                labels:{
+                    color:'#aebfd2',
+                    font:{size:10}
+                }
+            }
+        },
+        scales:{
+            x:{
+                ticks:{color:'#8197af',font:{size:9}},
+                grid:{color:'rgba(70,100,130,.14)'}
+            },
+            y:{
+                ticks:{color:'#8197af',font:{size:9}},
+                grid:{color:'rgba(70,100,130,.14)'}
+            }
+        }
+    };
+}
+
+function getStats(a){
+    return a.statistics || a.stats || {};
+}
+
+function getColumns(a){
+    const types = a.column_types || a.data_types || a.columns || {};
+    if(Array.isArray(types)){
+        const obj={};
+        types.forEach(x=>{
+            if(typeof x === 'string') obj[x]='object';
+            else if(x.name) obj[x.name]=x.dtype || x.type || 'object';
+        });
+        return obj;
+    }
+    return types || {};
+}
+
+function getAnomalies(a){
+    return a.anomalies || a.anomaly_detection || {};
+}
+
+function getCorrelations(a){
+    return a.correlations || a.correlation || {};
+}
+
+function renderDashboard(a){
+    document.getElementById('loading').style.display='none';
+    document.getElementById('dashboard').style.display='block';
+
+    const rows = num(a.rows ?? a.row_count ?? a.total_rows);
+    const cols = num(a.columns ?? a.column_count ?? a.total_columns);
+    const quality = num(a.quality_score ?? a.data_quality ?? a.quality ?? 0);
+
+    const anomalies = getAnomalies(a);
+    const anomalyColumns = Object.keys(anomalies || {}).filter(k => {
+        const x = anomalies[k];
+        return x && (typeof x === 'object' || num(x)>0);
+    });
+
+    const anomalyCount = anomalyColumns.reduce((sum,k)=>{
+        const x=anomalies[k];
+        return sum + num(x?.count ?? x?.anomalous_values ?? x?.values ?? x);
+    },0);
+
+    document.getElementById('fileName').textContent =
+        a.filename || a.file_name || 'Analytics Dashboard';
+
+    document.getElementById('fileMeta').textContent =
+        `${formatNumber(rows)} rows × ${formatNumber(cols)} columns${a.file_type ? ' • '+a.file_type.toUpperCase() : ''}`;
+
+    document.getElementById('rowsKpi').textContent=formatNumber(rows);
+    document.getElementById('colsKpi').textContent=formatNumber(cols);
+    document.getElementById('anomalyKpi').textContent=formatNumber(anomalyColumns.length);
+    document.getElementById('qualityKpi').textContent=quality.toFixed(1)+'%';
+    document.getElementById('qualityTop').textContent=quality.toFixed(1)+'%';
+    document.getElementById('qualityCenter').textContent=quality.toFixed(1)+'%';
+
+    const stats=getStats(a);
+    const columns=getColumns(a);
+
+    const numericNames=Object.keys(stats).filter(k=>{
+        const s=stats[k] || {};
+        return ['mean','median','std','min','max'].some(x => s[x] !== undefined);
+    });
+
+    document.getElementById('numericText').textContent =
+        `${numericNames.length} numeric column(s) detected.`;
+
+    renderNumericChart(stats,numericNames);
+    renderTypeChart(columns);
+    renderTrendChart(stats,numericNames);
+    renderQualityChart(quality);
+    renderCorrelation(getCorrelations(a),numericNames);
+    renderAnomalyChart(rows,anomalyCount,anomalyColumns,anomalies);
+    renderInsights(a,rows,cols,quality,numericNames.length,anomalyColumns.length);
+    renderColumns(columns);
+}
+
+function renderNumericChart(stats,names){
+    destroyChart('numeric');
+
+    const values=names.map(n=>num(stats[n]?.mean));
+    const labels=names.map(n=>n.replaceAll('_',' '));
+
+    charts.numeric=new Chart(document.getElementById('numericChart'),{
+        type:'bar',
+        data:{
+            labels,
+            datasets:[{
+                label:'Average',
+                data:values,
+                backgroundColor:chartColors.slice(0,names.length),
+                borderRadius:7,
+                borderSkipped:false
+            }]
+        },
+        options:{
+            ...baseChartOptions(),
+            plugins:{legend:{display:false}},
+            scales:{
+                ...baseChartOptions().scales,
+                y:{...baseChartOptions().scales.y,beginAtZero:true}
+            }
+        }
+    });
+}
+
+function renderTypeChart(columns){
+    destroyChart('type');
+
+    const counts={};
+    Object.values(columns).forEach(type=>{
+        let t=String(type).toLowerCase();
+        if(t.includes('int')||t.includes('float')||t.includes('double')||t.includes('number')) t='Numeric';
+        else if(t.includes('bool')) t='Boolean';
+        else if(t.includes('date')||t.includes('time')) t='Date/Time';
+        else t='Categorical';
+        counts[t]=(counts[t]||0)+1;
+    });
+
+    const labels=Object.keys(counts);
+    const values=Object.values(counts);
+
+    charts.type=new Chart(document.getElementById('typeChart'),{
+        type:'doughnut',
+        data:{
+            labels,
+            datasets:[{
+                data:values,
+                backgroundColor:chartColors,
+                borderWidth:2,
+                borderColor:'#101f33',
+                hoverOffset:5
+            }]
+        },
+        options:{
+            responsive:true,
+            maintainAspectRatio:false,
+            cutout:'67%',
+            plugins:{
+                legend:{display:false}
+            }
+        }
+    });
+
+    document.getElementById('typeLegend').innerHTML=labels.map((l,i)=>`
+        <div class="legend-row">
+            <span class="dot" style="background:${chartColors[i%chartColors.length]}"></span>
+            <span>${esc(l)}</span>
+            <span class="legend-value">${values[i]}</span>
+        </div>
+    `).join('');
+}
+
+function renderTrendChart(stats,names){
+    destroyChart('trend');
+
+    const selected=names.slice(0,5);
+    const labels=['Min','Median','Mean','Max'];
+
+    const datasets=selected.map((name,i)=>{
+        const s=stats[name]||{};
+        return {
+            label:name.replaceAll('_',' '),
+            data:[num(s.min),num(s.median),num(s.mean),num(s.max)],
+            borderColor:chartColors[i%chartColors.length],
+            backgroundColor:chartColors[i%chartColors.length],
+            borderWidth:2,
+            tension:.35,
+            pointRadius:3
+        };
+    });
+
+    charts.trend=new Chart(document.getElementById('trendChart'),{
+        type:'line',
+        data:{labels,datasets},
+        options:baseChartOptions()
+    });
+
+    document.getElementById('trendLabel').textContent =
+        selected.length ? selected.join(', ').replaceAll('_',' ') : 'Numeric statistics';
+}
+
+function renderQualityChart(quality){
+    destroyChart('quality');
+
+    charts.quality=new Chart(document.getElementById('qualityChart'),{
+        type:'doughnut',
+        data:{
+            labels:['Quality','Remaining'],
+            datasets:[{
+                data:[Math.max(0,Math.min(100,quality)),Math.max(0,100-quality)],
+                backgroundColor:['#3ddc97','#1b3046'],
+                borderWidth:0
+            }]
+        },
+        options:{
+            responsive:true,
+            maintainAspectRatio:false,
+            cutout:'78%',
+            rotation:-110,
+            circumference:220,
+            plugins:{legend:{display:false},tooltip:{enabled:false}}
+        }
+    });
+
+    document.getElementById('qualityText').textContent =
+        quality >= 90 ? 'Excellent data quality with very few issues.' :
+        quality >= 75 ? 'Good quality, but some cleaning may be useful.' :
+        'The dataset may need additional cleaning before analysis.';
+}
+
+function correlationValue(correlations,row,col){
+    if(!correlations) return null;
+
+    if(Array.isArray(correlations)){
+        const item=correlations.find(x =>
+            (x.variable===row && x.column===col) ||
+            (x.row===row && x.column===col)
+        );
+        return item?.value ?? null;
+    }
+
+    const r=correlations[row];
+    if(r && typeof r==='object'){
+        return r[col] ?? null;
+    }
+
+    return null;
+}
+
+function correlationColor(value){
+    const v=Math.max(-1,Math.min(1,num(value)));
+    if(v>=0){
+        const alpha=.10 + Math.abs(v)*.72;
+        return `rgba(54,184,255,${alpha})`;
+    }
+    const alpha=.10 + Math.abs(v)*.72;
+    return `rgba(255,102,133,${alpha})`;
+}
+
+function renderCorrelation(correlations,names){
+    const target=document.getElementById('heatmap');
+
+    if(!names.length){
+        target.innerHTML='<div class="empty">No numeric columns available for correlation.</div>';
+        return;
+    }
+
+    const selected=names.slice(0,8);
+    const cols=selected.length+1;
+
+    let html=`<div class="heatmap" style="grid-template-columns:160px repeat(${selected.length},minmax(70px,1fr))">`;
+    html+=`<div class="hm-cell hm-head">VARIABLE</div>`;
+
+    selected.forEach(c=>{
+        html+=`<div class="hm-cell hm-head">${esc(c)}</div>`;
+    });
+
+    selected.forEach(row=>{
+        html+=`<div class="hm-cell hm-label">${esc(row)}</div>`;
+        selected.forEach(col=>{
+            const value=row===col ? 1 : correlationValue(correlations,row,col);
+            const shown=value===null || value===undefined ? '—' : num(value).toFixed(2);
+            html+=`<div class="hm-cell" style="background:${value==null?'#14263b':correlationColor(value)}">${shown}</div>`;
+        });
+    });
+
+    html+='</div>';
+    target.innerHTML=html;
+}
+
+function renderAnomalyChart(rows,count,columns,anomalies){
+    destroyChart('anomaly');
+
+    const normal=Math.max(0,rows-count);
+
+    charts.anomaly=new Chart(document.getElementById('anomalyChart'),{
+        type:'doughnut',
+        data:{
+            labels:['Normal','Anomalous'],
+            datasets:[{
+                data:[normal,count],
+                backgroundColor:['#23425e','#ff6685'],
+                borderColor:'#101f33',
+                borderWidth:3
+            }]
+        },
+        options:{
+            responsive:true,
+            maintainAspectRatio:false,
+            cutout:'66%',
+            plugins:{
+                legend:{display:false}
+            }
+        }
+    });
+
+    document.getElementById('anomalyTitle').textContent =
+        count ? `${formatNumber(count)} unusual value${count===1?'':'s'}` : 'No anomalies';
+
+    document.getElementById('anomalyDescription').textContent =
+        count ? `${columns.length} column(s) contain detected outliers.` :
+        'No unusual values were detected in the dataset.';
+
+    const list=document.getElementById('alertList');
+
+    if(!columns.length){
+        list.innerHTML='<div class="alert" style="border-color:#29435d;background:#11243a">✓ Dataset looks clean.</div>';
+        return;
+    }
+
+    list.innerHTML=columns.slice(0,4).map(k=>{
+        const x=anomalies[k]||{};
+        const c=num(x.count ?? x.anomalous_values ?? x.values ?? x);
+        const lower=x.lower_bound ?? x.lower ?? null;
+        const upper=x.upper_bound ?? x.upper ?? null;
+
+        return `<div class="alert">
+            ⚠ <b>${esc(k)}</b> — ${formatNumber(c)} anomalous value(s)
+            ${lower!==null || upper!==null ? `<br><span style="color:#8fa3b9;font-size:10px">Bounds: ${formatNumber(lower)} → ${formatNumber(upper)}</span>`:''}
+        </div>`;
+    }).join('');
+}
+
+function renderInsights(a,rows,cols,quality,numericCount,anomalyCount){
+    const missing = num(a.missing_values ?? a.missing_count ?? 0);
+    const duplicates = num(a.duplicate_rows ?? a.duplicates ?? 0);
+
+    const items=[
+        {
+            title:'📊 DATASET',
+            text:`This dataset contains ${formatNumber(rows)} rows and ${formatNumber(cols)} columns.`
+        },
+        {
+            title:'💯 QUALITY',
+            text:`Overall data quality score is ${quality.toFixed(1)}%.`
+        },
+        {
+            title:'🔢 NUMERIC',
+            text:`Detected ${numericCount} numeric column(s) for statistical analysis.`
+        },
+        {
+            title:'🧹 MISSING VALUES',
+            text:missing ? `${formatNumber(missing)} missing value(s) were detected.` : 'No missing values were detected.'
+        },
+        {
+            title:'📋 DUPLICATES',
+            text:duplicates ? `${formatNumber(duplicates)} duplicate row(s) were detected.` : 'No duplicate rows were detected.'
+        },
+        {
+            title:'⚠ ANOMALIES',
+            text:anomalyCount ? `Anomalies were detected in ${anomalyCount} column(s). Review the anomaly panel.` : 'No anomaly columns were detected.'
+        }
+    ];
+
+    document.getElementById('insights').innerHTML=items.slice(0,6).map((x,i)=>`
+        <div class="insight ${i===1?'success':''} ${x.title.includes('ANOMALIES')&&anomalyCount?'warning':''}">
+            <div class="insight-title">${esc(x.title)}</div>
+            <div class="insight-text">${esc(x.text)}</div>
+        </div>
+    `).join('');
+}
+
+function renderColumns(columns){
+    document.getElementById('columns').innerHTML=Object.entries(columns).map(([name,type])=>{
+        return `<div class="column-pill"><b>${esc(name)}</b> · ${esc(type)}</div>`;
+    }).join('') || '<span class="card-note">No column information available.</span>';
+}
+
+async function downloadAnalysis(){
+    if(!currentAnalysis) return;
+    const id=currentAnalysis.id || currentAnalysis.analysis_id;
+    if(!id) return;
+
+    const response=await api('/api/analyses/'+id+'/download');
+    if(!response || !response.ok){
+        alert('Unable to download the analysis.');
+        return;
+    }
+
+    const blob=await response.blob();
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;
+    a.download=currentAnalysis.filename || 'analysis-file';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+}
+
+async function toggleFavorite(){
+    if(!currentAnalysis) return;
+    const id=currentAnalysis.id || currentAnalysis.analysis_id;
+    if(!id) return;
+
+    const response=await api('/api/analyses/'+id+'/favorite',{method:'POST'});
+    if(response && response.ok) alert('Favorite status updated.');
+}
+
+async function shareAnalysis(){
+    if(!currentAnalysis) return;
+    const id=currentAnalysis.id || currentAnalysis.analysis_id;
+    if(!id) return;
+
+    const email=prompt('Enter the email address to share this analysis with:');
+    if(!email) return;
+
+    const response=await api('/api/analyses/'+id+'/share',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({email})
+    });
+
+    if(response && response.ok) alert('Analysis shared successfully.');
+    else alert('Unable to share the analysis.');
+}
+
+async function logout(){
+    try{
+        await fetch('/api/auth/logout',{
+            method:'POST',
+            credentials:'include'
+        });
+    }finally{
+        window.location.href='/login';
+    }
+}
+
+function goDashboard(){
+    window.scrollTo({top:0,behavior:'smooth'});
+    closeSidebar();
+}
+
+function goAnalyses(){
+    window.location.href='/dashboard';
+}
+
+function goUpload(){
+    openUpload();
+}
+
+function openUpload(){
+    document.getElementById('uploadPanel').classList.add('show');
+    document.getElementById('uploadPanel').scrollIntoView({behavior:'smooth',block:'start'});
+    closeSidebar();
+}
+
+function closeUpload(){
+    document.getElementById('uploadPanel').classList.remove('show');
+    resetUpload();
+}
+
+function resetUpload(){
+    const input=document.getElementById('fileInput');
+    const selected=document.getElementById('selectedFile');
+    const btn=document.getElementById('uploadBtn');
+    const status=document.getElementById('uploadStatus');
+
+    if(input) input.value='';
+    if(selected){
+        selected.textContent='';
+        selected.style.display='none';
+    }
+    if(btn) btn.disabled=true;
+    if(status) status.textContent='Supported: CSV, XLSX, XLS';
+}
+
+function setSelectedFile(file){
+    if(!file) return;
+
+    const allowed=['csv','xlsx','xls'];
+    const ext=file.name.split('.').pop().toLowerCase();
+
+    if(!allowed.includes(ext)){
+        alert('Please select a CSV, XLSX, or XLS file.');
+        resetUpload();
+        return;
+    }
+
+    const selected=document.getElementById('selectedFile');
+    const btn=document.getElementById('uploadBtn');
+
+    selected.textContent=`📄 ${file.name} • ${(file.size/1024/1024).toFixed(2)} MB`;
+    selected.style.display='block';
+    btn.disabled=false;
+}
+
+async function uploadNewFile(){
+    const input=document.getElementById('fileInput');
+    const file=input.files[0];
+
+    if(!file){
+        alert('Please choose a file first.');
+        return;
+    }
+
+    const btn=document.getElementById('uploadBtn');
+    const status=document.getElementById('uploadStatus');
+
+    btn.disabled=true;
+    btn.textContent='⏳ Uploading...';
+    status.textContent='Uploading and analyzing your dataset...';
+
+    try{
+        const formData=new FormData();
+        formData.append('file',file);
+
+        const response=await api('/api/upload',{
+            method:'POST',
+            body:formData
+        });
+
+        if(!response) return;
+
+        let data={};
+        try{ data=await response.json(); }catch(e){}
+
+        if(!response.ok){
+            throw new Error(data.error || data.message || 'Upload failed.');
+        }
+
+        // Different backend versions may return analysis, id, or analysis_id.
+        const uploaded=data.analysis || data;
+        const id=uploaded.id || uploaded.analysis_id || data.id || data.analysis_id;
+
+        if(!id){
+            throw new Error('Upload succeeded, but the server did not return an analysis ID.');
+        }
+
+        status.textContent='✓ Upload complete. Loading the new dashboard...';
+
+        const detailResponse=await api('/api/analyses/'+id);
+
+        if(!detailResponse || !detailResponse.ok){
+            throw new Error('The uploaded file was saved, but its analysis could not be loaded.');
+        }
+
+        const detail=await detailResponse.json();
+        currentAnalysis=detail.analysis || detail;
+
+        // Replace the current dashboard with the newly uploaded dataset.
+        closeUpload();
+        renderDashboard(currentAnalysis);
+
+        document.getElementById('uploadStatus').textContent='✓ Dataset uploaded successfully.';
+        window.scrollTo({top:0,behavior:'smooth'});
+
+    }catch(error){
+        console.error(error);
+        status.textContent='❌ '+error.message;
+        btn.disabled=false;
+        btn.textContent='📤 Upload & Analyze';
+        return;
+    }
+
+    btn.textContent='📤 Upload & Analyze';
+}
+
+function toggleSidebar(){
+    document.getElementById('sidebar').classList.toggle('open');
+}
+function closeSidebar(){
+    document.getElementById('sidebar').classList.remove('open');
+}
+
+
+function setupUpload(){
+    const input=document.getElementById('fileInput');
+    const zone=document.getElementById('dropZone');
+
+    if(!input || !zone) return;
+
+    input.addEventListener('change',()=>{
+        setSelectedFile(input.files[0]);
+    });
+
+    ['dragenter','dragover'].forEach(eventName=>{
+        zone.addEventListener(eventName,(e)=>{
+            e.preventDefault();
+            e.stopPropagation();
+            zone.classList.add('dragover');
+        });
+    });
+
+    ['dragleave','drop'].forEach(eventName=>{
+        zone.addEventListener(eventName,(e)=>{
+            e.preventDefault();
+            e.stopPropagation();
+            zone.classList.remove('dragover');
+        });
+    });
+
+    zone.addEventListener('drop',(e)=>{
+        const file=e.dataTransfer.files[0];
+        if(!file) return;
+
+        // Put the dropped file into the real input so FormData uses it.
+        try{
+            const dt=new DataTransfer();
+            dt.items.add(file);
+            input.files=dt.files;
+        }catch(err){}
+
+        setSelectedFile(file);
+    });
+}
+
+document.addEventListener('DOMContentLoaded',async()=>{
+    setupUpload();
+    const ok=await loadUser();
+    if(ok) await loadAnalysis();
+});
+</script>
+</body>
+</html>
