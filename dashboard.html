@@ -675,9 +675,6 @@ function renderDashboard(){
     const a=currentAnalysis || {};
     const d=board || {};
 
-    $('datasetTitle').textContent=
-        `${a.filename || 'Dataset'} • ${number(a.rows,0)} rows • ${number(a.columns,0)} columns`;
-
     const stats=a.statistics || {};
     const types=a.data_types || {};
     const anomalies=a.anomalies || {};
@@ -686,192 +683,263 @@ function renderDashboard(){
 
     const numericColumns=Object.keys(stats);
     const allColumns=a.column_names || Object.keys(types);
-    const numericCount=numericColumns.length;
-    const categoricalCount=Object.values(types)
-        .filter(v=>/object|category|string/i.test(String(v))).length;
-
     const quality=Math.max(0,Math.min(100,Number(a.quality_score ?? 0)));
     const anomalyCount=Object.values(anomalies)
         .reduce((s,x)=>s+Number(x?.count || 0),0);
 
-    /* HR values when HR columns were detected, otherwise sensible generic KPIs. */
-    const employees=Number(d.employee_count ?? a.rows ?? 0);
-    const attrition=Number(d.attrition_count ?? anomalyCount ?? 0);
-    const attritionRate=Number(d.attrition_rate ?? (employees?attrition/employees*100:0));
-    const active=Number(d.active_employees ?? Math.max(employees-attrition,0));
-    const avgAge=d.avg_age ?? null;
+    $('datasetTitle').textContent=
+        `${a.filename || 'Dataset'} • ${number(a.rows,0)} rows • ${number(a.columns,0)} columns`;
+
+    if(d.is_hr){
+        renderHRDashboard(a,d,stats,types,quality,insights,anomalyCount,numericColumns,allColumns);
+        return;
+    }
+
+    renderGenericDashboard(
+        a,d,stats,types,quality,insights,anomalyCount,numericColumns,allColumns,correlations,anomalies
+    );
+}
+
+function renderHRDashboard(a,d,stats,types,quality,insights,anomalyCount,numericColumns,allColumns){
+    const employees=Number(d.employee_count || a.rows || 0);
+    const attrition=Number(d.attrition_count || 0);
+    const attritionRate=Number(d.attrition_rate || 0);
+    const active=Number(d.active_employees || 0);
+    const categoricalCount=Number(d.categorical_count || 0);
 
     $('dashboardArea').innerHTML=`
         <section class="summary-grid">
-            <div class="summary-card">
-                <div class="summary-head"><span>Employee Count</span><span class="summary-icon">👥</span></div>
-                <div class="summary-value">${number(employees)}</div>
-                <div class="summary-sub">Total records / headcount</div>
-            </div>
-            <div class="summary-card">
-                <div class="summary-head"><span>Attrition Count</span><span class="summary-icon">↘</span></div>
-                <div class="summary-value">${number(attrition)}</div>
-                <div class="summary-sub">Detected from dataset</div>
-            </div>
-            <div class="summary-card">
-                <div class="summary-head"><span>Attrition Rate</span><span class="summary-icon">%</span></div>
-                <div class="summary-value">${number(attritionRate,2)}%</div>
-                <div class="summary-sub">Attrition ÷ employee count</div>
-            </div>
-            <div class="summary-card">
-                <div class="summary-head"><span>Active Employees</span><span class="summary-icon">✓</span></div>
-                <div class="summary-value">${number(active)}</div>
-                <div class="summary-sub">Current estimated active count</div>
-            </div>
-            <div class="summary-card">
-                <div class="summary-head"><span>Data Quality</span><span class="summary-icon">◎</span></div>
-                <div class="summary-value">${number(quality,1)}%</div>
-                <div class="summary-sub">${numericCount} numeric • ${categoricalCount} categorical</div>
-            </div>
+            <div class="summary-card"><div class="summary-head"><span>Employee Count</span><span class="summary-icon">👥</span></div><div class="summary-value">${number(employees)}</div><div class="summary-sub">Total records / headcount</div></div>
+            <div class="summary-card"><div class="summary-head"><span>Attrition Count</span><span class="summary-icon">↘</span></div><div class="summary-value">${number(attrition)}</div><div class="summary-sub">Detected attrition</div></div>
+            <div class="summary-card"><div class="summary-head"><span>Attrition Rate</span><span class="summary-icon">%</span></div><div class="summary-value">${number(attritionRate,2)}%</div><div class="summary-sub">Attrition ÷ employee count</div></div>
+            <div class="summary-card"><div class="summary-head"><span>Active Employees</span><span class="summary-icon">✓</span></div><div class="summary-value">${number(active)}</div><div class="summary-sub">Estimated active count</div></div>
+            <div class="summary-card"><div class="summary-head"><span>Data Quality</span><span class="summary-icon">◎</span></div><div class="summary-value">${number(quality,1)}%</div><div class="summary-sub">${numericColumns.length} numeric • ${categoricalCount} categorical</div></div>
         </section>
 
         <section class="grid">
-            <div class="card">
-                <div class="card-head">
-                    <div>
-                        <div class="card-title">Department-wise Attrition</div>
-                        <div class="card-sub">Distribution of attrition across departments</div>
-                    </div>
-                </div>
-                <div class="chart-box"><canvas id="departmentChart"></canvas></div>
-            </div>
-
-            <div class="card">
-                <div class="card-head">
-                    <div>
-                        <div class="card-title">Employees by Age Group</div>
-                        <div class="card-sub">Headcount distribution by age band</div>
-                    </div>
-                </div>
-                <div class="chart-box"><canvas id="ageChart"></canvas></div>
-            </div>
+            <div class="card"><div class="card-head"><div><div class="card-title">Department-wise Attrition</div><div class="card-sub">Distribution of attrition across departments</div></div></div><div class="chart-box"><canvas id="departmentChart"></canvas></div></div>
+            <div class="card"><div class="card-head"><div><div class="card-title">Employees by Age Group</div><div class="card-sub">Headcount distribution by age band</div></div></div><div class="chart-box"><canvas id="ageChart"></canvas></div></div>
         </section>
 
         <section class="grid-wide">
-            <div class="card">
-                <div class="card-head">
-                    <div>
-                        <div class="card-title">Job Satisfaction Rating</div>
-                        <div class="card-sub">Employee count and attrition rate by rating</div>
-                    </div>
-                </div>
-                <div id="satisfactionTable"></div>
-            </div>
-
-            <div class="card">
-                <div class="card-head">
-                    <div>
-                        <div class="card-title">Education / Category Attrition</div>
-                        <div class="card-sub">Category-wise attrition summary</div>
-                    </div>
-                </div>
-                <div class="chart-box small"><canvas id="educationChart"></canvas></div>
-            </div>
+            <div class="card"><div class="card-head"><div><div class="card-title">Job Satisfaction Rating</div><div class="card-sub">Employee count and attrition rate by rating</div></div></div><div id="satisfactionTable"></div></div>
+            <div class="card"><div class="card-head"><div><div class="card-title">Education Field-wise Attrition</div><div class="card-sub">Category-wise attrition summary</div></div></div><div class="chart-box small"><canvas id="educationChart"></canvas></div></div>
         </section>
 
         <section class="grid-wide">
-            <div class="card">
-                <div class="card-head">
-                    <div>
-                        <div class="card-title">Attrition by Gender & Age Group</div>
-                        <div class="card-sub">Compact demographic comparison</div>
-                    </div>
-                </div>
-                <div id="genderAge"></div>
-            </div>
-
-            <div class="card">
-                <div class="card-head">
-                    <div>
-                        <div class="card-title">Data Quality</div>
-                        <div class="card-sub">Overall score from completeness and duplicate checks</div>
-                    </div>
-                </div>
-                <div class="quality-wrap">
-                    <div class="gauge" id="qualityGauge">
-                        <div class="gauge-center">
-                            <div class="gauge-score">${number(quality,1)}%</div>
-                            <div class="gauge-caption">QUALITY</div>
-                        </div>
-                    </div>
-                    <div class="quality-legend">
-                        <div class="quality-line"><span class="quality-dot" style="background:var(--green)"></span>Good data</div>
-                        <div class="quality-line"><span class="quality-dot" style="background:var(--yellow)"></span>Review needed</div>
-                        <div class="quality-line"><span class="quality-dot" style="background:var(--red)"></span>Needs attention</div>
-                    </div>
-                </div>
-            </div>
+            <div class="card"><div class="card-head"><div><div class="card-title">Attrition by Gender & Age Group</div><div class="card-sub">Compact demographic comparison</div></div></div><div id="genderAge"></div></div>
+            <div class="card"><div class="card-head"><div><div class="card-title">Data Quality</div><div class="card-sub">Completeness and duplicate checks</div></div></div><div class="quality-wrap"><div class="gauge" id="qualityGauge"><div class="gauge-center"><div class="gauge-score">${number(quality,1)}%</div><div class="gauge-caption">QUALITY</div></div></div><div class="quality-legend"><div class="quality-line"><span class="quality-dot" style="background:var(--green)"></span>Good data</div><div class="quality-line"><span class="quality-dot" style="background:var(--yellow)"></span>Review needed</div><div class="quality-line"><span class="quality-dot" style="background:var(--red)"></span>Needs attention</div></div></div></div>
         </section>
 
         <section class="grid-wide">
-            <div class="card">
-                <div class="card-head">
-                    <div>
-                        <div class="card-title">Numeric Overview</div>
-                        <div class="card-sub">Mean, minimum and maximum values</div>
-                    </div>
-                </div>
-                <div class="chart-box small"><canvas id="numericChart"></canvas></div>
-            </div>
-
-            <div class="card">
-                <div class="card-head">
-                    <div>
-                        <div class="card-title">Correlation Heatmap</div>
-                        <div class="card-sub">Pearson correlation between numeric columns</div>
-                    </div>
-                </div>
-                <div id="heatmap"></div>
-            </div>
+            <div class="card"><div class="card-head"><div><div class="card-title">Numeric Overview</div><div class="card-sub">Mean and range of numeric fields</div></div></div><div class="chart-box small"><canvas id="numericChart"></canvas></div></div>
+            <div class="card"><div class="card-head"><div><div class="card-title">Correlation Heatmap</div><div class="card-sub">Pearson correlation between numeric columns</div></div></div><div id="heatmap"></div></div>
         </section>
 
         <section class="grid-wide">
-            <div class="card">
-                <div class="card-head">
-                    <div>
-                        <div class="card-title">AI Insights</div>
-                        <div class="card-sub">Automatically generated from the uploaded dataset</div>
-                    </div>
-                </div>
-                <div class="insights">
-                    ${(insights.length?insights:['No AI insights available.'])
-                        .map(x=>`<div class="insight">✦ ${esc(x)}</div>`).join('')}
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-head">
-                    <div>
-                        <div class="card-title">Dataset Columns</div>
-                        <div class="card-sub">${allColumns.length} fields detected</div>
-                    </div>
-                </div>
-                <div class="pills">
-                    ${allColumns.map(c=>`<span class="pill">${esc(c)}</span>`).join('')}
-                </div>
-            </div>
+            <div class="card"><div class="card-head"><div><div class="card-title">AI Insights</div><div class="card-sub">Automatically generated from the uploaded dataset</div></div></div><div class="insights">${(insights.length?insights:['No AI insights available.']).map(x=>`<div class="insight">✦ ${esc(x)}</div>`).join('')}</div></div>
+            <div class="card"><div class="card-head"><div><div class="card-title">Dataset Columns</div><div class="card-sub">${allColumns.length} fields detected</div></div></div><div class="pills">${allColumns.map(c=>`<span class="pill">${esc(c)}</span>`).join('')}</div></div>
         </section>
     `;
 
-    const department=d.department_attrition || [];
-    const age=d.age_distribution || [];
-    const satisfaction=d.job_satisfaction || [];
-    const education=d.education_attrition || [];
-    const genderAge=d.gender_age_attrition || [];
-
-    renderDepartment(department, stats);
-    renderAge(age);
-    renderSatisfaction(satisfaction, stats);
-    renderEducation(education, department, numericColumns);
-    renderGenderAge(genderAge);
+    renderDepartment(d.department_attrition || [],stats);
+    renderAge(d.age_distribution || []);
+    renderSatisfaction(d.job_satisfaction || [],stats);
+    renderEducation(d.education_attrition || [],d.department_attrition || [],numericColumns);
+    renderGenderAge(d.gender_age_attrition || []);
     renderQualityGauge(quality);
     renderNumeric(stats,numericColumns);
+    renderHeatmap(a.correlations || {});
+}
+
+function renderGenericDashboard(a,d,stats,types,quality,insights,anomalyCount,numericColumns,allColumns,correlations,anomalies){
+    const rows=Number(d.total_rows ?? a.rows ?? 0);
+    const cols=Number(d.total_columns ?? a.columns ?? 0);
+    const numericCount=Number(d.numeric_count ?? numericColumns.length);
+    const categoricalCount=Number(d.categorical_count ?? Object.values(types).filter(v=>/object|category|string|bool/i.test(String(v))).length);
+    const missing=Number(d.missing_values ?? 0);
+    const duplicates=Number(d.duplicate_rows ?? 0);
+
+    $('dashboardArea').innerHTML=`
+        <section class="summary-grid">
+            <div class="summary-card"><div class="summary-head"><span>Total Rows</span><span class="summary-icon">▤</span></div><div class="summary-value">${number(rows)}</div><div class="summary-sub">Records analyzed</div></div>
+            <div class="summary-card"><div class="summary-head"><span>Total Columns</span><span class="summary-icon">▦</span></div><div class="summary-value">${number(cols)}</div><div class="summary-sub">${numericCount} numeric fields</div></div>
+            <div class="summary-card"><div class="summary-head"><span>Numeric Columns</span><span class="summary-icon">123</span></div><div class="summary-value">${number(numericCount)}</div><div class="summary-sub">Quantitative fields detected</div></div>
+            <div class="summary-card"><div class="summary-head"><span>Categorical Columns</span><span class="summary-icon">Aa</span></div><div class="summary-value">${number(categoricalCount)}</div><div class="summary-sub">Text / category fields</div></div>
+            <div class="summary-card"><div class="summary-head"><span>Data Quality</span><span class="summary-icon">◎</span></div><div class="summary-value">${number(quality,1)}%</div><div class="summary-sub">${number(missing)} missing • ${number(duplicates)} duplicates</div></div>
+        </section>
+
+        <section class="grid">
+            <div class="card"><div class="card-head"><div><div class="card-title">Numeric Column Overview</div><div class="card-sub">Mean values across detected numeric fields</div></div></div><div class="chart-box"><canvas id="departmentChart"></canvas></div></div>
+            <div class="card"><div class="card-head"><div><div class="card-title">Categorical Distribution</div><div class="card-sub">Most common values from the dataset</div></div></div><div class="chart-box"><canvas id="ageChart"></canvas></div></div>
+        </section>
+
+        <section class="grid-wide">
+            <div class="card"><div class="card-head"><div><div class="card-title">Statistical Summary</div><div class="card-sub">Mean, median and standard deviation</div></div></div><div id="satisfactionTable"></div></div>
+            <div class="card"><div class="card-head"><div><div class="card-title">Category Breakdown</div><div class="card-sub">Top values in the first available categorical field</div></div></div><div class="chart-box small"><canvas id="educationChart"></canvas></div></div>
+        </section>
+
+        <section class="grid-wide">
+            <div class="card"><div class="card-head"><div><div class="card-title">Anomaly Detection</div><div class="card-sub">IQR-based outliers in numeric fields</div></div></div><div class="chart-box small"><canvas id="genderAge"></canvas></div></div>
+            <div class="card"><div class="card-head"><div><div class="card-title">Data Quality</div><div class="card-sub">Completeness and duplicate checks</div></div></div><div class="quality-wrap"><div class="gauge" id="qualityGauge"><div class="gauge-center"><div class="gauge-score">${number(quality,1)}%</div><div class="gauge-caption">QUALITY</div></div></div><div class="quality-legend"><div class="quality-line"><span class="quality-dot" style="background:var(--green)"></span>Good data</div><div class="quality-line"><span class="quality-dot" style="background:var(--yellow)"></span>Review needed</div><div class="quality-line"><span class="quality-dot" style="background:var(--red)"></span>Needs attention</div></div></div></div>
+        </section>
+
+        <section class="grid-wide">
+            <div class="card"><div class="card-head"><div><div class="card-title">Correlation Heatmap</div><div class="card-sub">Relationship between numeric fields</div></div></div><div id="heatmap"></div></div>
+            <div class="card"><div class="card-head"><div><div class="card-title">AI Insights</div><div class="card-sub">Automatically generated from the uploaded dataset</div></div></div><div class="insights">${(insights.length?insights:['No AI insights available.']).map(x=>`<div class="insight">✦ ${esc(x)}</div>`).join('')}</div></div>
+        </section>
+
+        <section class="card" style="margin-top:10px"><div class="card-head"><div><div class="card-title">Dataset Columns</div><div class="card-sub">${allColumns.length} fields detected</div></div></div><div class="pills">${allColumns.map(c=>`<span class="pill">${esc(c)}</span>`).join('')}</div></section>
+    `;
+
+    renderGenericNumeric(d.numeric_summary || [],stats);
+    renderGenericCategories(d.categorical_summary || []);
+    renderGenericTable(d.numeric_summary || []);
+    renderGenericCategoryChart(d.categorical_summary || []);
+    renderGenericAnomalies(anomalies);
+    renderQualityGauge(quality);
     renderHeatmap(correlations);
+}
+
+function renderGenericNumeric(items,stats){
+    let labels=items.map(x=>x.name);
+    let means=items.map(x=>Number(x.mean||0));
+
+    if(!labels.length){
+        labels=Object.keys(stats).slice(0,10);
+        means=labels.map(c=>Number(stats[c]?.mean||0));
+    }
+
+    if(!labels.length){
+        $('departmentChart').parentElement.innerHTML='<div class="empty">No numeric fields available.</div>';
+        return;
+    }
+
+    charts.push(new Chart($('departmentChart'),{
+        type:'bar',
+        data:{labels,datasets:[{
+            label:'Mean',
+            data:means,
+            backgroundColor:'#2aa1f4',
+            borderRadius:4
+        }]},
+        options:{
+            responsive:true,
+            maintainAspectRatio:false,
+            plugins:{legend:{display:false}},
+            scales:{x:axisOptions,y:axisOptions}
+        }
+    }));
+}
+
+function renderGenericCategories(items){
+    if(!items.length){
+        $('ageChart').parentElement.innerHTML='<div class="empty">No categorical fields available.</div>';
+        return;
+    }
+
+    const first=items[0];
+    const labels=first.categories.map(x=>x.name);
+    const values=first.categories.map(x=>Number(x.count||0));
+
+    charts.push(new Chart($('ageChart'),{
+        type:'bar',
+        data:{labels,datasets:[{
+            label:first.column,
+            data:values,
+            backgroundColor:'#24ceb8',
+            borderRadius:4
+        }]},
+        options:{
+            responsive:true,
+            maintainAspectRatio:false,
+            plugins:{legend:{display:false}},
+            scales:{x:axisOptions,y:axisOptions}
+        }
+    }));
+}
+
+function renderGenericTable(items){
+    const box=$('satisfactionTable');
+    if(!items.length){
+        box.innerHTML='<div class="empty">No numeric statistics available.</div>';
+        return;
+    }
+
+    box.innerHTML=`<div style="overflow:auto"><table style="width:100%;border-collapse:collapse;font-size:9px">
+        <thead><tr style="background:#0d223a;color:#9eb4ca">
+            <th style="padding:8px;text-align:left">COLUMN</th>
+            <th style="padding:8px;text-align:right">MEAN</th>
+            <th style="padding:8px;text-align:right">MEDIAN</th>
+            <th style="padding:8px;text-align:right">MIN</th>
+            <th style="padding:8px;text-align:right">MAX</th>
+        </tr></thead>
+        <tbody>${items.slice(0,8).map(x=>`<tr style="border-bottom:1px solid #173452;color:#a8bad0">
+            <td style="padding:8px">${esc(x.name)}</td>
+            <td style="padding:8px;text-align:right">${number(x.mean,2)}</td>
+            <td style="padding:8px;text-align:right">${number(x.median,2)}</td>
+            <td style="padding:8px;text-align:right">${number(x.min,2)}</td>
+            <td style="padding:8px;text-align:right">${number(x.max,2)}</td>
+        </tr>`).join('')}</tbody>
+    </table></div>`;
+}
+
+function renderGenericCategoryChart(items){
+    const box=$('educationChart');
+    if(!items.length){
+        box.parentElement.innerHTML='<div class="empty">No categorical data available.</div>';
+        return;
+    }
+
+    const first=items[0];
+    const labels=first.categories.map(x=>x.name);
+    const values=first.categories.map(x=>Number(x.count||0));
+
+    const chartLabels=labels.length?labels:['No data'];
+    const chartValues=values.length?values:[0];
+
+    charts.push(new Chart(box,{
+        type:'doughnut',
+        data:{labels:chartLabels,datasets:[{
+            data:chartValues,
+            backgroundColor:['#1b8fe6','#24cdb9','#625df4','#ffb950','#ff6683','#6d8cff'],
+            borderColor:'#08172a',
+            borderWidth:2
+        }]},
+        options:{
+            responsive:true,
+            maintainAspectRatio:false,
+            cutout:'60%',
+            plugins:{legend:{position:'right',labels:{color:'#91a8c0',font:{size:8},boxWidth:8}}}
+        }
+    }));
+}
+
+function renderGenericAnomalies(anomalies){
+    const canvas=$('genderAge');
+    const labels=Object.keys(anomalies || {});
+    const values=labels.map(k=>Number(anomalies[k]?.count||0));
+
+    if(!labels.length){
+        canvas.parentElement.innerHTML='<div class="empty">No significant IQR anomalies detected.</div>';
+        return;
+    }
+
+    charts.push(new Chart(canvas,{
+        type:'doughnut',
+        data:{labels,datasets:[{
+            data:values,
+            backgroundColor:['#ff617e','#ff9c62','#f6ca50','#c96cff','#48a6ff','#35d3b3'],
+            borderColor:'#08172a',
+            borderWidth:2
+        }]},
+        options:{
+            responsive:true,
+            maintainAspectRatio:false,
+            cutout:'60%',
+            plugins:{legend:{position:'right',labels:{color:'#91a8c0',font:{size:8},boxWidth:8}}}
+        }
+    }));
 }
 
 /* charts */
