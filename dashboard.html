@@ -3,4593 +3,1331 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>AI Analytics Suite — Dashboard</title>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<title>Zaki AI Analytics</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 
 <style>
 :root{
-    --bg:#07111f;
-    --sidebar:#091525;
-    --card:#101f33;
-    --card2:#13263e;
-    --border:#203651;
-    --text:#f4f7fb;
-    --muted:#91a4bb;
-    --accent:#36b8ff;
-    --accent2:#7c5cff;
-    --green:#3ddc97;
-    --yellow:#ffc857;
-    --red:#ff6685;
-    --cyan:#39d8ff;
-    --shadow:0 14px 40px rgba(0,0,0,.18);
+    --bg:#020b18;
+    --bg2:#061426;
+    --sidebar:#071426;
+    --panel:#08182b;
+    --panel2:#0b1d33;
+    --panel3:#0e2340;
+    --border:#173452;
+    --border2:#214768;
+    --text:#f2f7ff;
+    --muted:#8da2bd;
+    --blue:#3298ff;
+    --blue2:#1677dc;
+    --cyan:#1bd6ff;
+    --green:#2bd598;
+    --yellow:#f6c453;
+    --red:#ff667f;
+    --shadow:0 18px 45px rgba(0,0,0,.26);
 }
 
-*{
-    box-sizing:border-box;
-}
-
-html,
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
 body{
-    margin:0;
-    min-height:100%;
-    font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-    background:var(--bg);
+    background:
+        radial-gradient(circle at 78% 3%,rgba(40,144,255,.07),transparent 26%),
+        linear-gradient(180deg,#020a14 0%,#061326 55%,#04101e 100%);
     color:var(--text);
 }
+button,input{font:inherit}
+button{cursor:pointer}
+a{text-decoration:none;color:inherit}
 
-body{
-    overflow-x:hidden;
-}
+.app{min-height:100vh;display:flex}
 
-button,
-input{
-    font:inherit;
-}
-
-button{
-    cursor:pointer;
-}
-
-.app{
-    display:flex;
-    min-height:100vh;
-}
-
-/* ================= SIDEBAR ================= */
-
+/* SIDEBAR */
 .sidebar{
-    width:235px;
+    width:228px;
     position:fixed;
-    inset:0 auto 0 0;
-    background:linear-gradient(180deg,#091525 0%,#07111e 100%);
-    border-right:1px solid #172b43;
+    left:0;top:0;bottom:0;
+    background:linear-gradient(180deg,#071427 0%,#061222 100%);
+    border-right:1px solid #17304a;
     display:flex;
     flex-direction:column;
-    z-index:100;
+    z-index:30;
 }
-
 .brand{
-    padding:24px 20px;
-    font-size:20px;
+    min-height:72px;
+    padding:0 20px;
+    display:flex;
+    align-items:center;
+    border-bottom:1px solid #152c45;
+}
+.brand-mark{
+    width:30px;height:30px;
+    display:grid;place-items:center;
+    margin-right:8px;
+    font-size:21px;
+}
+.brand-text{
+    font-size:18px;
     font-weight:800;
-    letter-spacing:-.4px;
-    border-bottom:1px solid #172b43;
+    letter-spacing:-.5px;
+    color:#a88fff;
 }
-
-.brand span{
-    color:#8f79ff;
-}
-
 .nav{
-    padding:16px 10px;
+    padding:17px 10px;
 }
-
-.nav button{
+.nav-title{
+    padding:0 13px 8px;
+    text-transform:uppercase;
+    font-size:9px;
+    letter-spacing:1.2px;
+    color:#647b95;
+}
+.nav-btn{
     width:100%;
     border:0;
     background:transparent;
-    color:#9aacc1;
+    color:#93a8c0;
     text-align:left;
-    padding:13px 14px;
+    padding:12px 14px;
     border-radius:10px;
     margin-bottom:5px;
-    font-weight:600;
-}
-
-.nav button:hover,
-.nav button.active{
-    color:white;
-    background:#13263e;
-}
-
-.nav button.active{
-    box-shadow:inset 3px 0 var(--accent);
-}
-
-.user-box{
-    margin:auto 10px 10px;
-    border:1px solid #1d334e;
-    border-radius:12px;
-    padding:12px;
-    background:#0c1b2d;
-}
-
-.user-name{
-    font-weight:700;
-    font-size:13px;
-}
-
-.user-email{
-    font-size:11px;
-    color:var(--muted);
-    margin-top:4px;
-    white-space:nowrap;
-    overflow:hidden;
-    text-overflow:ellipsis;
-}
-
-.logout{
-    margin-top:10px;
-    width:100%;
-    border:1px solid #253c57;
-    background:transparent;
-    color:#ff8aa2;
-    border-radius:8px;
-    padding:9px;
-}
-
-.logout:hover{
-    background:#281a28;
-}
-
-/* ================= MAIN ================= */
-
-.main{
-    margin-left:235px;
-    width:calc(100% - 235px);
-    padding:25px 26px 45px;
-}
-
-.topbar{
     display:flex;
-    justify-content:space-between;
-    align-items:flex-end;
-    gap:20px;
-    margin-bottom:20px;
-}
-
-.title-wrap h1{
-    margin:0;
-    font-size:27px;
-    letter-spacing:-.7px;
-}
-
-.title-wrap p{
-    margin:6px 0 0;
-    color:var(--muted);
+    align-items:center;
+    gap:10px;
     font-size:13px;
+    font-weight:650;
+    transition:.15s ease;
+}
+.nav-btn:hover{background:#10233d;color:#e8f1ff}
+.nav-btn.active{
+    background:#132b4b;
+    color:#ffffff;
+    box-shadow:inset 3px 0 0 #20b6ff;
+}
+.nav-icon{width:19px;text-align:center;font-size:15px}
+.sidebar-spacer{flex:1}
+.user-card{
+    margin:10px;
+    padding:11px;
+    border:1px solid #1b3b5d;
+    border-radius:11px;
+    background:#081a2e;
+}
+.user-row{display:flex;align-items:center;gap:9px}
+.avatar{
+    width:34px;height:34px;border-radius:50%;
+    background:linear-gradient(135deg,#314f88,#162a4b);
+    border:1px solid #31517c;
+    display:grid;place-items:center;
+    color:#cfe3ff;font-weight:800;font-size:12px;
+}
+.user-name{font-size:12px;font-weight:800}
+.user-email{font-size:10px;color:#788fa9;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:145px}
+.logout{
+    width:100%;
+    margin-top:10px;
+    padding:9px;
+    border-radius:9px;
+    border:1px solid #214463;
+    background:#0a1e33;
+    color:#ff7b9b;
+    font-weight:700;
+    font-size:12px;
 }
 
-.quality-badge{
-    min-width:155px;
-    text-align:right;
+/* MAIN */
+.main{
+    margin-left:228px;
+    min-height:100vh;
+    width:calc(100% - 228px);
 }
-
-.quality-number{
-    font-size:30px;
-    font-weight:850;
+.topbar{
+    height:72px;
+    padding:0 28px;
+    border-bottom:1px solid #10273f;
+    background:rgba(4,14,27,.72);
+    backdrop-filter:blur(8px);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
 }
-
-.quality-label{
-    font-size:10px;
-    color:var(--muted);
-    letter-spacing:.6px;
-}
-
-/* ================= KPI ================= */
-
-.kpis{
-    display:grid;
-    grid-template-columns:repeat(4,minmax(0,1fr));
-    gap:14px;
-    margin-bottom:15px;
-}
-
-.kpi{
-    background:linear-gradient(145deg,#112239,#0e1c2e);
-    border:1px solid var(--border);
-    border-radius:13px;
-    padding:17px 18px;
-    box-shadow:var(--shadow);
-}
-
-.kpi-label{
-    color:#8ea3ba;
-    text-transform:uppercase;
-    letter-spacing:.7px;
-    font-size:10px;
+.page-title{
+    font-size:18px;
     font-weight:800;
 }
-
-.kpi-value{
-    font-size:27px;
-    font-weight:850;
-    margin-top:8px;
-}
-
-.kpi-sub{
-    font-size:11px;
-    color:#71879f;
+.page-subtitle{
+    color:var(--muted);
+    font-size:10px;
     margin-top:3px;
 }
+.top-actions{display:flex;gap:8px;align-items:center}
+.btn{
+    border:1px solid #214663;
+    background:#0b1f35;
+    color:#d7e6f9;
+    padding:9px 13px;
+    border-radius:8px;
+    font-size:11px;
+    font-weight:750;
+}
+.btn:hover{filter:brightness(1.08)}
+.btn.primary{
+    border-color:#2386df;
+    color:white;
+    background:linear-gradient(135deg,#1975da,#329cff);
+}
+.content{
+    padding:20px 28px 35px;
+}
 
-/* ================= GRID ================= */
+/* SUMMARY */
+.summary-grid{
+    display:grid;
+    grid-template-columns:repeat(5,minmax(0,1fr));
+    gap:10px;
+}
+.summary-card{
+    background:linear-gradient(180deg,#0b1b30,#08172a);
+    border:1px solid #173452;
+    border-radius:11px;
+    padding:14px;
+    min-height:105px;
+    box-shadow:var(--shadow);
+}
+.summary-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    color:#91a5bf;
+    font-size:10px;
+    font-weight:700;
+}
+.summary-icon{
+    width:28px;height:28px;
+    border-radius:8px;
+    display:grid;place-items:center;
+    background:#112e50;
+    color:#54b5ff;
+    font-size:13px;
+}
+.summary-value{
+    margin-top:9px;
+    font-size:24px;
+    line-height:1;
+    font-weight:850;
+}
+.summary-sub{
+    margin-top:7px;
+    color:#6e879f;
+    font-size:9px;
+}
 
+/* GRID */
 .grid{
     display:grid;
-    grid-template-columns:1.45fr 1fr;
-    gap:15px;
-    margin-bottom:15px;
+    grid-template-columns:1.45fr .95fr;
+    gap:10px;
+    margin-top:10px;
 }
-
-.grid.equal{
+.grid-wide{
+    display:grid;
     grid-template-columns:1fr 1fr;
+    gap:10px;
+    margin-top:10px;
 }
-
-/* ================= CARD ================= */
-
 .card{
-    background:linear-gradient(145deg,#102137,#0d1c2e);
-    border:1px solid var(--border);
-    border-radius:14px;
-    padding:17px;
+    background:linear-gradient(180deg,rgba(9,26,46,.96),rgba(7,20,35,.96));
+    border:1px solid #173653;
+    border-radius:11px;
     box-shadow:var(--shadow);
+    padding:14px;
     min-width:0;
 }
-
 .card-head{
     display:flex;
     justify-content:space-between;
-    align-items:center;
-    gap:10px;
-    margin-bottom:13px;
+    align-items:flex-start;
+    margin-bottom:11px;
 }
-
 .card-title{
-    font-size:14px;
+    font-size:12px;
     font-weight:800;
 }
-
-.card-note{
-    font-size:10px;
-    color:var(--muted);
+.card-sub{
+    color:#7187a1;
+    font-size:9px;
+    margin-top:3px;
 }
-
-/* ================= CHARTS ================= */
-
 .chart-box{
-    height:255px;
+    height:250px;
     position:relative;
 }
+.chart-box.small{height:225px}
+.chart-box.tiny{height:185px}
 
-.chart-box.small{
-    height:215px;
-}
-
-.chart-box.tall{
-    height:285px;
-}
-
-.donut-layout{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    align-items:center;
-    gap:10px;
-}
-
-.donut-box{
-    height:220px;
-    position:relative;
-}
-
-.legend{
+/* QUALITY */
+.quality-wrap{
+    min-height:225px;
     display:flex;
-    flex-direction:column;
-    gap:8px;
-    max-height:190px;
-    overflow:auto;
-}
-
-.legend-row{
-    display:flex;
-    align-items:center;
-    gap:8px;
-    font-size:11px;
-    color:#bdcadd;
-}
-
-.dot{
-    width:9px;
-    height:9px;
-    border-radius:50%;
-    flex:0 0 9px;
-}
-
-.legend-value{
-    margin-left:auto;
-    color:white;
-    font-weight:700;
-}
-
-/* ================= GAUGE ================= */
-
-.gauge-wrap{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    align-items:center;
-    min-height:215px;
-}
-
-.gauge{
-    height:210px;
-    position:relative;
-}
-
-.gauge-center{
-    position:absolute;
-    inset:0;
-    display:flex;
-    align-items:center;
     justify-content:center;
-    flex-direction:column;
-    pointer-events:none;
+    align-items:center;
+    gap:28px;
 }
-
-.gauge-center strong{
-    font-size:29px;
-}
-
-.gauge-center span{
-    font-size:10px;
-    color:var(--muted);
-    text-transform:uppercase;
-}
-
-/* ================= INSIGHTS ================= */
-
-.insights{
+.gauge{
+    width:154px;height:154px;border-radius:50%;
+    position:relative;
     display:grid;
-    grid-template-columns:repeat(3,1fr);
+    place-items:center;
+    background:conic-gradient(var(--green) 0%,#1a2d45 0);
+}
+.gauge::after{
+    content:"";
+    width:110px;height:110px;
+    position:absolute;
+    border-radius:50%;
+    background:#09192b;
+}
+.gauge-center{
+    position:relative;
+    z-index:1;
+    text-align:center;
+}
+.gauge-score{
+    font-size:28px;
+    font-weight:850;
+}
+.gauge-caption{
+    color:#738da8;
+    font-size:9px;
+    margin-top:3px;
+}
+.quality-legend{
+    display:grid;
     gap:10px;
+    font-size:10px;
+    color:#9caec3;
+}
+.quality-line{
+    display:flex;align-items:center;gap:7px
+}
+.quality-dot{
+    width:8px;height:8px;border-radius:50%
 }
 
-.insight{
-    background:#13263e;
-    border:1px solid #203a59;
-    border-left:3px solid var(--accent);
-    border-radius:9px;
-    padding:13px;
-    min-height:95px;
-}
-
-.insight.warning{
-    border-left-color:var(--yellow);
-}
-
-.insight.success{
-    border-left-color:var(--green);
-}
-
-.insight-title{
-    font-size:11px;
-    font-weight:800;
-    margin-bottom:7px;
-}
-
-.insight-text{
-    font-size:11px;
-    line-height:1.55;
-    color:#b7c6d8;
-}
-
-/* ================= HEATMAP ================= */
-
-.heatmap-wrap{
-    overflow:auto;
-}
-
+/* HEATMAP */
 .heatmap{
     display:grid;
-    gap:2px;
-    min-width:500px;
+    gap:3px;
+    overflow:auto;
+    max-height:260px;
+}
+.heat-row{display:flex;gap:3px}
+.heat-cell{
+    width:62px;min-width:62px;height:36px;
+    border-radius:4px;
+    display:grid;
+    place-items:center;
+    font-size:9px;
+    color:white;
+}
+.heat-label{
+    width:100px;min-width:100px;height:36px;
+    display:flex;
+    align-items:center;
+    padding-right:8px;
+    color:#7e96af;
+    font-size:9px;
+    overflow:hidden;
 }
 
-.hm-cell{
-    min-height:40px;
-    padding:8px 6px;
-    display:flex;
+/* INSIGHTS */
+.insights{display:grid;gap:7px}
+.insight{
+    border:1px solid #173452;
+    border-radius:8px;
+    background:#0a1930;
+    padding:9px 10px;
+    color:#afbdd0;
+    line-height:1.45;
+    font-size:10px;
+}
+.pills{display:flex;flex-wrap:wrap;gap:6px}
+.pill{
+    border:1px solid #1a3b5b;
+    background:#0a1f36;
+    color:#a1b9d1;
+    padding:6px 8px;
+    border-radius:16px;
+    font-size:9px;
+}
+
+/* UPLOAD */
+.modal{
+    display:none;
+    position:fixed;
+    inset:0;
+    z-index:80;
+    background:rgba(2,9,18,.73);
     align-items:center;
     justify-content:center;
-    border-radius:4px;
-    font-size:10px;
-    font-weight:700;
+    padding:20px;
 }
-
-.hm-label{
-    background:#0d1b2d;
-    color:#a9bad0;
-    justify-content:flex-start;
+.modal.show{display:flex}
+.modal-card{
+    width:min(520px,95vw);
+    border:1px solid #20486b;
+    border-radius:13px;
+    background:linear-gradient(180deg,#0c2038,#08172a);
+    padding:17px;
+    box-shadow:0 28px 80px rgba(0,0,0,.42);
 }
-
-.hm-head{
-    background:#0c1a2b;
-    color:#a9bad0;
+.modal-title{
+    font-weight:800;font-size:16px;
 }
-
-/* ================= ANOMALIES ================= */
-
-.anomaly-summary{
-    display:grid;
-    grid-template-columns:170px 1fr;
-    gap:15px;
-    align-items:center;
+.modal-sub{font-size:10px;color:#768fa8;margin-top:4px}
+.dropzone{
+    margin-top:14px;
+    padding:32px 15px;
+    text-align:center;
+    border:1.5px dashed #2d5478;
+    border-radius:10px;
+    background:#08182b;
 }
-
-.anomaly-chart{
-    height:170px;
-    position:relative;
+.dropzone.drag{
+    border-color:#20c5ff;
+    background:#0c2037;
 }
-
-.anomaly-info h3{
-    margin:0 0 7px;
-    font-size:18px;
-}
-
-.anomaly-info p{
-    margin:5px 0;
-    color:var(--muted);
-    font-size:11px;
-    line-height:1.5;
-}
-
-.alert-list{
+.drop-icon{font-size:30px}
+.drop-title{font-size:12px;font-weight:800;margin-top:7px}
+.drop-sub{font-size:9px;color:#7089a1;margin-top:4px}
+.file-input{display:none}
+.selected{
+    min-height:15px;
     margin-top:10px;
+    font-size:9px;
+    color:#9fb3c9;
+}
+.modal-actions{
+    margin-top:12px;
     display:flex;
-    flex-direction:column;
+    justify-content:flex-end;
     gap:7px;
 }
-
-.alert{
-    padding:9px 10px;
-    border:1px solid #443344;
-    background:#211d2b;
-    border-radius:8px;
-    font-size:11px;
-}
-
-.alert b{
-    color:#ff93a9;
-}
-
-/* ================= COLUMNS ================= */
-
-.columns{
-    display:flex;
-    flex-wrap:wrap;
-    gap:8px;
-}
-
-.column-pill{
-    padding:7px 10px;
-    border:1px solid #27415e;
-    background:#11243a;
-    border-radius:999px;
-    color:#b9c9da;
+.status{
+    min-height:15px;
+    margin-top:7px;
     font-size:10px;
-}
-
-.column-pill b{
-    color:#fff;
-}
-
-/* ================= BUTTONS ================= */
-
-.actions{
-    display:flex;
-    gap:8px;
-    flex-wrap:wrap;
-}
-
-.action{
-    border:1px solid #28415e;
-    background:#10243a;
-    color:#eaf2fa;
-    border-radius:8px;
-    padding:9px 12px;
-    font-size:11px;
-    font-weight:700;
-}
-
-.action:hover{
-    background:#16304d;
-}
-
-.action.primary{
-    background:#147ab0;
-    border-color:#198dca;
-}
-
-.action:disabled{
-    opacity:.55;
-    cursor:not-allowed;
-}
-
-/* ================= LOADING ================= */
-
-.loading{
-    min-height:70vh;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    color:var(--muted);
-    font-size:14px;
+    color:#8ba2bb;
 }
 
 .empty{
+    min-height:280px;
+    display:grid;
+    place-items:center;
+    text-align:center;
+    color:#7d93aa;
     padding:40px;
-    text-align:center;
-    color:var(--muted);
 }
+.empty-title{font-size:17px;color:#fff;font-weight:800}
+.empty-sub{font-size:11px;margin-top:7px}
 
-/* ================= UPLOAD ================= */
-
-.add-data-btn{
-    border:1px solid #2b8ec4;
-    background:linear-gradient(135deg,#1688c5,#2769d8);
-    color:white;
-    border-radius:9px;
-    padding:10px 15px;
-    font-size:11px;
-    font-weight:800;
-    box-shadow:0 7px 18px rgba(24,126,190,.18);
-}
-
-.add-data-btn:hover{
-    filter:brightness(1.08);
-    transform:translateY(-1px);
-}
-
-.upload-panel{
+.toast{
     display:none;
-    margin-bottom:15px;
-}
-
-.upload-panel.show{
-    display:block;
-}
-
-.drop-zone{
-    border:1.5px dashed #2e648b;
-    background:linear-gradient(145deg,#10283f,#0d1d30);
-    border-radius:14px;
-    padding:30px 20px;
-    text-align:center;
-    transition:.2s;
-}
-
-.drop-zone.dragover{
-    border-color:#36b8ff;
-    background:#112d46;
-    box-shadow:0 0 0 3px rgba(54,184,255,.10);
-}
-
-.drop-zone.uploading{
-    opacity:.7;
-    pointer-events:none;
-}
-
-.upload-icon{
-    font-size:35px;
-    margin-bottom:8px;
-}
-
-.drop-title{
-    font-size:16px;
-    font-weight:800;
-}
-
-.drop-sub{
-    font-size:11px;
-    color:#91a4bb;
-    margin:7px 0 15px;
-}
-
-.file-input{
-    display:none;
-}
-
-.choose-btn{
-    display:inline-block;
-    border:1px solid #2a8fc6;
-    background:#147ab0;
-    color:white;
+    position:fixed;
+    z-index:100;
+    right:20px;bottom:20px;
+    background:#0d2944;
+    border:1px solid #2b5a7e;
+    color:#d9ebff;
     border-radius:8px;
-    padding:10px 16px;
-    font-size:11px;
-    font-weight:800;
+    padding:10px 12px;
+    font-size:10px;
+    box-shadow:var(--shadow);
 }
+.loading{opacity:.55;pointer-events:none}
 
-.choose-btn:hover{
-    background:#198bc4;
+/* RESPONSIVE */
+@media(max-width:1180px){
+    .summary-grid{grid-template-columns:repeat(3,1fr)}
+    .grid,.grid-wide{grid-template-columns:1fr}
 }
-
-.selected-file{
-    margin:14px auto 0;
-    max-width:500px;
-    padding:9px 12px;
-    border-radius:8px;
-    background:#132b44;
-    border:1px solid #254965;
-    color:#c8d7e6;
-    font-size:11px;
-    display:none;
-}
-
-.upload-actions{
-    display:flex;
-    justify-content:center;
-    gap:8px;
-    margin-top:12px;
-}
-
-.upload-status{
-    text-align:center;
-    margin-top:10px;
-    font-size:11px;
-    color:#91a4bb;
-}
-
-.upload-status.success{
-    color:var(--green);
-}
-
-.upload-status.error{
-    color:var(--red);
-}
-
-/* ================= MOBILE ================= */
-
-.mobile-menu{
-    display:none;
-    border:1px solid #29425d;
-    background:#10243a;
-    color:white;
-    border-radius:8px;
-    padding:8px 10px;
-}
-
-@media(max-width:1050px){
-
-    .sidebar{
-        width:205px;
-    }
-
-    .main{
-        margin-left:205px;
-        width:calc(100% - 205px);
-    }
-
-    .kpis{
-        grid-template-columns:repeat(2,1fr);
-    }
-
-    .grid,
-    .grid.equal{
-        grid-template-columns:1fr;
-    }
-}
-
-@media(max-width:700px){
-
-    .sidebar{
-        transform:translateX(-100%);
-        transition:.2s;
-    }
-
-    .sidebar.open{
-        transform:translateX(0);
-    }
-
-    .main{
-        margin-left:0;
-        width:100%;
-        padding:18px 12px 35px;
-    }
-
-    .mobile-menu{
-        display:block;
-    }
-
-    .topbar{
-        align-items:flex-start;
-    }
-
-    .kpis{
-        grid-template-columns:1fr 1fr;
-        gap:9px;
-    }
-
-    .kpi{
-        padding:13px;
-    }
-
-    .kpi-value{
-        font-size:22px;
-    }
-
-    .insights{
-        grid-template-columns:1fr;
-    }
-
-    .donut-layout,
-    .gauge-wrap,
-    .anomaly-summary{
-        grid-template-columns:1fr;
-    }
-
-    .donut-box,
-    .gauge,
-    .anomaly-chart{
-        height:190px;
-    }
+@media(max-width:780px){
+    .sidebar{width:68px}
+    .brand-text,.nav-title,.nav-label,.user-info,.logout{display:none}
+    .brand{justify-content:center;padding:0}
+    .nav-btn{justify-content:center;padding:12px 7px}
+    .user-card{padding:7px}
+    .main{margin-left:68px;width:calc(100% - 68px)}
+    .topbar{padding:0 14px}
+    .content{padding:14px}
+    .summary-grid{grid-template-columns:repeat(2,1fr)}
 }
 </style>
 </head>
 
 <body>
-
 <div class="app">
 
-<!-- ================= SIDEBAR ================= -->
-
-<aside class="sidebar" id="sidebar">
-
+<aside class="sidebar">
     <div class="brand">
-        📊 <span>Zaki AI Analytics</span>
+        <div class="brand-mark">📊</div>
+        <div class="brand-text">Zaki AI Analytics</div>
     </div>
 
     <nav class="nav">
-
-        <button id="dashboardNav"
-                class="active"
-                onclick="goDashboard()">
-            🏠 Dashboard
+        <div class="nav-title">Workspace</div>
+        <button class="nav-btn active" onclick="goTop()">
+            <span class="nav-icon">🏠</span><span class="nav-label">Dashboard</span>
         </button>
-
-        <button id="analysesNav"
-                onclick="goAnalyses()">
-            📁 My Analyses
+        <button class="nav-btn" onclick="refreshDashboard()">
+            <span class="nav-icon">📁</span><span class="nav-label">My Analyses</span>
         </button>
-
-        <button id="uploadNav"
-                onclick="openUpload()">
-            📤 Upload Data
+        <button class="nav-btn" onclick="openUpload()">
+            <span class="nav-icon">📤</span><span class="nav-label">Upload Data</span>
         </button>
-
     </nav>
 
-    <div class="user-box">
+    <div class="sidebar-spacer"></div>
 
-        <div class="user-name" id="userName">
-            Loading...
+    <div class="user-card">
+        <div class="user-row">
+            <div class="avatar" id="avatar">U</div>
+            <div class="user-info">
+                <div class="user-name" id="userName">Loading...</div>
+                <div class="user-email" id="userEmail"></div>
+            </div>
         </div>
-
-        <div class="user-email" id="userEmail"></div>
-
-        <button class="logout" onclick="logout()">
-            🚪 Logout
-        </button>
-
+        <button class="logout" onclick="logout()">🚪 Logout</button>
     </div>
-
 </aside>
 
-
-<!-- ================= MAIN ================= -->
-
 <main class="main">
+    <header class="topbar">
+        <div>
+            <div class="page-title">Analytics Dashboard</div>
+            <div class="page-subtitle" id="datasetTitle">Loading your latest analysis...</div>
+        </div>
+        <div class="top-actions">
+            <button class="btn" onclick="refreshDashboard()">↻ Refresh</button>
+            <button class="btn primary" onclick="openUpload()">📤 Upload Data</button>
+        </div>
+    </header>
 
-    <div id="loading" class="loading">
-        Loading dashboard...
+    <div class="content">
+        <section id="dashboardArea">
+            <div class="card empty">
+                <div>
+                    <div class="empty-title">Loading dashboard...</div>
+                    <div class="empty-sub">Fetching your latest analysis.</div>
+                </div>
+            </div>
+        </section>
     </div>
-
-
-    <div id="dashboard" style="display:none">
-
-        <!-- TOP BAR -->
-
-        <div class="topbar">
-
-            <div class="title-wrap">
-
-                <h1 id="fileName">
-                    Analytics Dashboard
-                </h1>
-
-                <p id="fileMeta">
-                    Loading dataset...
-                </p>
-
-            </div>
-
-
-            <div style="display:flex;align-items:flex-end;gap:14px">
-
-                <button
-                    class="mobile-menu"
-                    onclick="toggleSidebar()">
-                    ☰
-                </button>
-
-                <button
-                    class="add-data-btn"
-                    onclick="openUpload()">
-                    ＋ Add New CSV
-                </button>
-
-                <div class="quality-badge">
-
-                    <div
-                        class="quality-number"
-                        id="qualityTop">
-                        --%
-                    </div>
-
-                    <div class="quality-label">
-                        DATA QUALITY
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <!-- ================= UPLOAD PANEL ================= -->
-
-        <section
-            class="card upload-panel"
-            id="uploadPanel">
-
-            <div class="card-head">
-
-                <div class="card-title">
-                    📤 Add New Dataset
-                </div>
-
-                <button
-                    class="action"
-                    onclick="closeUpload()">
-                    ✕ Close
-                </button>
-
-            </div>
-
-
-            <div
-                class="drop-zone"
-                id="dropZone">
-
-                <div class="upload-icon">
-                    📁
-                </div>
-
-                <div class="drop-title">
-                    Upload a new CSV or Excel file
-                </div>
-
-                <div class="drop-sub">
-                    Drag & drop your file here, or choose a file from your computer
-                </div>
-
-
-                <label class="choose-btn">
-
-                    Choose File
-
-                    <input
-                        id="fileInput"
-                        class="file-input"
-                        type="file"
-                        accept=".csv,.xlsx,.xls">
-
-                </label>
-
-
-                <div
-                    class="selected-file"
-                    id="selectedFile">
-                </div>
-
-
-                <div class="upload-actions">
-
-                    <button
-                        class="action primary"
-                        id="uploadBtn"
-                        onclick="uploadNewFile()"
-                        disabled>
-
-                        📤 Upload & Analyze
-
-                    </button>
-
-                </div>
-
-
-                <div
-                    class="upload-status"
-                    id="uploadStatus">
-
-                    Supported: CSV, XLSX, XLS
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-        <!-- ================= KPIs ================= -->
-
-        <section class="kpis">
-
-            <div class="kpi">
-
-                <div class="kpi-label">
-                    Rows
-                </div>
-
-                <div
-                    class="kpi-value"
-                    id="rowsKpi">
-                    --
-                </div>
-
-                <div class="kpi-sub">
-                    Total records
-                </div>
-
-            </div>
-
-
-            <div class="kpi">
-
-                <div class="kpi-label">
-                    Columns
-                </div>
-
-                <div
-                    class="kpi-value"
-                    id="colsKpi">
-                    --
-                </div>
-
-                <div class="kpi-sub">
-                    Dataset fields
-                </div>
-
-            </div>
-
-
-            <div class="kpi">
-
-                <div class="kpi-label">
-                    Anomalies
-                </div>
-
-                <div
-                    class="kpi-value"
-                    id="anomalyKpi">
-                    --
-                </div>
-
-                <div class="kpi-sub">
-                    Detected issues
-                </div>
-
-            </div>
-
-
-            <div class="kpi">
-
-                <div class="kpi-label">
-                    Data Quality
-                </div>
-
-                <div
-                    class="kpi-value"
-                    id="qualityKpi">
-                    --%
-                </div>
-
-                <div class="kpi-sub">
-                    Overall score
-                </div>
-
-            </div>
-
-        </section>
-
-
-        <!-- ================= NUMERIC + TYPES ================= -->
-
-        <div class="grid">
-
-            <section class="card">
-
-                <div class="card-head">
-
-                    <div class="card-title">
-                        📊 Numeric Overview
-                    </div>
-
-                    <div class="card-note">
-                        Average values
-                    </div>
-
-                </div>
-
-                <div class="chart-box">
-
-                    <canvas id="numericChart"></canvas>
-
-                </div>
-
-            </section>
-
-
-            <section class="card">
-
-                <div class="card-head">
-
-                    <div class="card-title">
-                        🍩 Data Type Distribution
-                    </div>
-
-                    <div class="card-note">
-                        Columns
-                    </div>
-
-                </div>
-
-                <div class="donut-layout">
-
-                    <div class="donut-box">
-
-                        <canvas id="typeChart"></canvas>
-
-                    </div>
-
-                    <div
-                        class="legend"
-                        id="typeLegend">
-                    </div>
-
-                </div>
-
-            </section>
-
-        </div>
-
-
-        <!-- ================= TREND + QUALITY ================= -->
-
-        <div class="grid equal">
-
-            <section class="card">
-
-                <div class="card-head">
-
-                    <div class="card-title">
-                        📈 Statistical Trend
-                    </div>
-
-                    <div
-                        class="card-note"
-                        id="trendLabel">
-                        Mean / Median
-                    </div>
-
-                </div>
-
-                <div class="chart-box">
-
-                    <canvas id="trendChart"></canvas>
-
-                </div>
-
-            </section>
-
-
-            <section class="card">
-
-                <div class="card-head">
-
-                    <div class="card-title">
-                        💯 Data Quality Gauge
-                    </div>
-
-                    <div class="card-note">
-                        Overall quality
-                    </div>
-
-                </div>
-
-
-                <div class="gauge-wrap">
-
-                    <div class="gauge">
-
-                        <canvas id="qualityChart"></canvas>
-
-                        <div class="gauge-center">
-
-                            <strong id="qualityCenter">
-                                --%
-                            </strong>
-
-                            <span>
-                                Quality
-                            </span>
-
-                        </div>
-
-                    </div>
-
-
-                    <div>
-
-                        <div
-                            class="insight success"
-                            style="margin-bottom:9px">
-
-                            <div class="insight-title">
-                                ✓ QUALITY STATUS
-                            </div>
-
-                            <div
-                                class="insight-text"
-                                id="qualityText">
-
-                                Analyzing dataset...
-
-                            </div>
-
-                        </div>
-
-
-                        <div class="insight">
-
-                            <div class="insight-title">
-                                📌 COLUMNS
-                            </div>
-
-                            <div
-                                class="insight-text"
-                                id="numericText">
-
-                                -- numeric columns detected.
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </section>
-
-        </div>
-
-
-        <!-- ================= CORRELATION + ANOMALIES ================= -->
-
-        <div class="grid equal">
-
-            <section class="card">
-
-                <div class="card-head">
-
-                    <div class="card-title">
-                        🔗 Correlation Analysis
-                    </div>
-
-                    <div class="card-note">
-                        Numeric relationships
-                    </div>
-
-                </div>
-
-                <div class="heatmap-wrap">
-
-                    <div id="heatmap"></div>
-
-                </div>
-
-            </section>
-
-
-            <section class="card">
-
-                <div class="card-head">
-
-                    <div class="card-title">
-                        ⚠️ Anomaly Detection
-                    </div>
-
-                    <div class="card-note">
-                        Outlier overview
-                    </div>
-
-                </div>
-
-
-                <div class="anomaly-summary">
-
-                    <div class="anomaly-chart">
-
-                        <canvas id="anomalyChart"></canvas>
-
-                    </div>
-
-
-                    <div class="anomaly-info">
-
-                        <h3 id="anomalyTitle">
-                            No anomalies
-                        </h3>
-
-                        <p id="anomalyDescription">
-                            No unusual values were detected.
-                        </p>
-
-                        <div
-                            class="alert-list"
-                            id="alertList">
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </section>
-
-        </div>
-
-
-        <!-- ================= AI INSIGHTS ================= -->
-
-        <section
-            class="card"
-            style="margin-bottom:15px">
-
-            <div class="card-head">
-
-                <div class="card-title">
-                    🤖 AI Insights
-                </div>
-
-                <div class="actions">
-
-                    <button
-                        class="action primary"
-                        onclick="downloadAnalysis()">
-                        📥 Download
-                    </button>
-
-                    <button
-                        class="action"
-                        onclick="toggleFavorite()">
-                        ⭐ Favorite
-                    </button>
-
-                    <button
-                        class="action"
-                        onclick="shareAnalysis()">
-                        🔗 Share
-                    </button>
-
-                </div>
-
-            </div>
-
-
-            <div
-                class="insights"
-                id="insights">
-            </div>
-
-        </section>
-
-
-        <!-- ================= COLUMNS ================= -->
-
-        <section class="card">
-
-            <div class="card-head">
-
-                <div class="card-title">
-                    🧩 Dataset Columns
-                </div>
-
-                <div class="card-note">
-                    Detected automatically
-                </div>
-
-            </div>
-
-            <div
-                class="columns"
-                id="columns">
-            </div>
-
-        </section>
-
-    </div>
-
 </main>
-
 </div>
 
+<!-- Upload Modal -->
+<div class="modal" id="uploadModal">
+    <div class="modal-card">
+        <div class="modal-title">Upload New Dataset</div>
+        <div class="modal-sub">CSV, XLSX or XLS • Maximum 100MB</div>
+
+        <div class="dropzone" id="dropzone">
+            <div class="drop-icon">☁️</div>
+            <div class="drop-title">Drag & drop your file here</div>
+            <div class="drop-sub">or choose a file from your computer</div>
+            <label class="btn" style="display:inline-block;margin-top:12px" for="fileInput">Choose File</label>
+            <input id="fileInput" class="file-input" type="file" accept=".csv,.xlsx,.xls">
+            <div class="selected" id="selectedFile">No file selected</div>
+        </div>
+
+        <div class="modal-actions">
+            <button class="btn" onclick="closeUpload()">Cancel</button>
+            <button class="btn primary" id="uploadBtn" onclick="uploadNewFile()" disabled>Upload & Analyze</button>
+        </div>
+        <div class="status" id="uploadStatus"></div>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
 
 <script>
-
-/* =========================================================
-   GLOBAL VARIABLES
-========================================================= */
-
-let charts = {};
 let currentAnalysis = null;
-let analyses = [];
+let board = null;
+let charts = [];
 
-let selectedFile = null;
+const $ = id => document.getElementById(id);
 
-const chartColors = [
-    '#36b8ff',
-    '#7c5cff',
-    '#3ddc97',
-    '#ffc857',
-    '#ff6685',
-    '#39d8ff',
-    '#ff8f5a',
-    '#a66cff',
-    '#58d68d',
-    '#f78fb3'
-];
+async function api(url, options={}) {
+    const opts = {...options, credentials:'include'};
+    opts.headers = {...(options.headers || {}), Accept:'application/json'};
+    const response = await fetch(url, opts);
 
-
-/* =========================================================
-   BASIC HELPERS
-========================================================= */
-
-function esc(value){
-
-    return String(value ?? '')
-        .replaceAll('&','&amp;')
-        .replaceAll('<','&lt;')
-        .replaceAll('>','&gt;')
-        .replaceAll('"','&quot;')
-        .replaceAll("'","&#039;");
-
-}
-
-
-function num(value){
-
-    const n = Number(value);
-
-    return Number.isFinite(n) ? n : 0;
-
-}
-
-
-function formatNumber(value){
-
-    const n = Number(value);
-
-    if(!Number.isFinite(n)){
-        return '0';
+    if(response.status === 401){
+        window.location.replace('/login');
+        return null;
     }
-
-    return n.toLocaleString(
-        'en-IN',
-        {
-            maximumFractionDigits:2
-        }
-    );
-
+    return response;
 }
 
-
-function safePercentage(value){
-
-    const n = Number(value);
-
-    if(!Number.isFinite(n)){
-        return 0;
-    }
-
-    return Math.max(
-        0,
-        Math.min(100,n)
-    );
-
+function esc(v){
+    return String(v ?? '').replace(/[&<>"']/g,c=>({
+        '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'
+    }[c]));
 }
 
-
-/* =========================================================
-   API HELPER
-========================================================= */
-
-async function api(url, options = {}){
-
-    try{
-
-        const requestOptions = {
-            ...options,
-            credentials:'include',
-            headers:{
-                'Accept':'application/json',
-                ...(options.headers || {})
-            }
-        };
-
-        const response = await fetch(
-            url,
-            requestOptions
-        );
-
-
-        /* Flask-Login unauthorized API */
-
-        if(response.status === 401){
-
-            window.location.href = '/login';
-
-            return null;
-        }
-
-
-        return response;
-
-    }catch(error){
-
-        console.error(
-            'API Error:',
-            error
-        );
-
-        throw error;
-    }
-
+function number(v,digits=0){
+    const n=Number(v);
+    return Number.isFinite(n)
+        ? n.toLocaleString(undefined,{maximumFractionDigits:digits})
+        : '—';
 }
 
+function toast(msg){
+    const t=$('toast');
+    t.textContent=msg;
+    t.style.display='block';
+    clearTimeout(window.__toast);
+    window.__toast=setTimeout(()=>t.style.display='none',3000);
+}
 
-/* =========================================================
-   USER
-========================================================= */
+function destroyCharts(){
+    charts.forEach(c=>{try{c.destroy()}catch(e){}});
+    charts=[];
+}
+
+function goTop(){
+    window.scrollTo({top:0,behavior:'smooth'});
+}
 
 async function loadUser(){
+    const response=await api('/api/auth/me');
+    if(!response || !response.ok)return;
+    const user=await response.json();
+    const name=[user.first_name,user.last_name].filter(Boolean).join(' ') || user.username || 'User';
 
-    try{
+    $('userName').textContent=name;
+    $('userEmail').textContent=user.email || '';
+    $('avatar').textContent=name.charAt(0).toUpperCase();
+}
 
-        const response =
-            await api('/api/auth/me');
+async function loadLatestAnalysis(){
+    const listResponse=await api('/api/analyses?page=1');
 
-        if(!response){
-            return false;
-        }
-
-
-        if(!response.ok){
-
-            window.location.href =
-                '/login';
-
-            return false;
-        }
-
-
-        const user =
-            await response.json();
-
-
-        document.getElementById(
-            'userName'
-        ).textContent =
-            [
-                user.first_name,
-                user.last_name
-            ]
-            .filter(Boolean)
-            .join(' ')
-            ||
-            user.username
-            ||
-            'User';
-
-
-        document.getElementById(
-            'userEmail'
-        ).textContent =
-            user.email || '';
-
-
-        return true;
-
-    }catch(error){
-
-        console.error(
-            'User loading failed:',
-            error
-        );
-
-        window.location.href =
-            '/login';
-
-        return false;
+    if(!listResponse || !listResponse.ok){
+        throw new Error('Could not load analyses.');
     }
 
-}
-
-
-/* =========================================================
-   LOAD ANALYSES
-========================================================= */
-
-async function loadAnalysis(){
-
-    try{
-
-        const response =
-            await api('/api/analyses');
-
-
-        if(!response){
-
-            return;
-        }
-
-
-        if(!response.ok){
-
-            showEmpty(
-                'Unable to load analyses.'
-            );
-
-            return;
-        }
-
-
-        const data =
-            await response.json();
-
-
-        if(Array.isArray(data)){
-
-            analyses = data;
-
-        }else{
-
-            analyses =
-                data.analyses ||
-                data.data ||
-                [];
-
-        }
-
-
-        if(
-            !Array.isArray(analyses) ||
-            analyses.length === 0
-        ){
-
-            showEmpty(
-                'No analysis found. Upload a CSV or Excel file first.'
-            );
-
-            return;
-        }
-
-
-        const first =
-            analyses[0];
-
-
-        const id =
-            first.id ||
-            first.analysis_id;
-
-
-        if(!id){
-
-            showEmpty(
-                'Analysis ID was not returned by the server.'
-            );
-
-            return;
-        }
-
-
-        await loadAnalysisById(id);
-
-
-    }catch(error){
-
-        console.error(
-            'Load analysis error:',
-            error
-        );
-
-        showEmpty(
-            'Unable to load dashboard data.'
-        );
-    }
-
-}
-
-
-/* =========================================================
-   LOAD SINGLE ANALYSIS
-========================================================= */
-
-async function loadAnalysisById(id){
-
-    const detailResponse =
-        await api(
-            '/api/analyses/' + id
-        );
-
-
-    if(!detailResponse){
-
-        return null;
-    }
-
-
-    if(!detailResponse.ok){
-
-        showEmpty(
-            'Unable to load analysis details.'
-        );
-
-        return null;
-    }
-
-
-    const payload =
-        await detailResponse.json();
-
-
-    currentAnalysis =
-        payload.analysis ||
-        payload.data ||
-        payload;
-
-
-    renderDashboard(
-        currentAnalysis
-    );
-
-
-    return currentAnalysis;
-}
-
-
-/* =========================================================
-   EMPTY STATE
-========================================================= */
-
-function showEmpty(message){
-
-    document.getElementById(
-        'loading'
-    ).innerHTML =
-        `
-        <div class="empty">
-            ${esc(message)}
-        </div>
-        `;
-
-}
-
-
-/* =========================================================
-   CHART MANAGEMENT
-========================================================= */
-
-function destroyChart(name){
-
-    if(charts[name]){
-
-        charts[name].destroy();
-
-        charts[name] = null;
-    }
-
-}
-
-
-/* =========================================================
-   CHART OPTIONS
-========================================================= */
-
-function baseChartOptions(){
-
-    return {
-
-        responsive:true,
-
-        maintainAspectRatio:false,
-
-        plugins:{
-            legend:{
-                labels:{
-                    color:'#aebfd2',
-                    font:{
-                        size:10
-                    }
-                }
-            }
-        },
-
-        scales:{
-
-            x:{
-                ticks:{
-                    color:'#8197af',
-                    font:{
-                        size:9
-                    }
-                },
-
-                grid:{
-                    color:'rgba(70,100,130,.14)'
-                }
-            },
-
-            y:{
-                ticks:{
-                    color:'#8197af',
-                    font:{
-                        size:9
-                    }
-                },
-
-                grid:{
-                    color:'rgba(70,100,130,.14)'
-                }
-            }
-
-        }
-
-    };
-
-}
-
-
-/* =========================================================
-   DATA NORMALIZATION
-========================================================= */
-
-function getStats(a){
-
-    return (
-        a.statistics ||
-        a.stats ||
-        {}
-    );
-
-}
-
-
-function getColumns(a){
-
-    const types =
-        a.column_types ||
-        a.data_types ||
-        a.columns ||
-        {};
-
-
-    if(Array.isArray(types)){
-
-        const obj = {};
-
-
-        types.forEach(item => {
-
-            if(typeof item === 'string'){
-
-                obj[item] = 'object';
-
-            }else if(item && item.name){
-
-                obj[item.name] =
-                    item.dtype ||
-                    item.type ||
-                    'object';
-            }
-
-        });
-
-
-        return obj;
-    }
-
-
-    return types || {};
-
-}
-
-
-function getAnomalies(a){
-
-    return (
-        a.anomalies ||
-        a.anomaly_detection ||
-        {}
-    );
-
-}
-
-
-function getCorrelations(a){
-
-    return (
-        a.correlations ||
-        a.correlation ||
-        {}
-    );
-
-}
-
-
-/* =========================================================
-   RENDER DASHBOARD
-========================================================= */
-
-function renderDashboard(a){
-
-    if(!a){
+    const list=await listResponse.json();
+    const analyses=list.analyses || [];
+
+    if(!analyses.length){
+        currentAnalysis=null;
+        board=null;
+        renderEmpty();
         return;
     }
 
-
-    document.getElementById(
-        'loading'
-    ).style.display = 'none';
-
-
-    document.getElementById(
-        'dashboard'
-    ).style.display = 'block';
-
-
-    const rows =
-        num(
-            a.rows ??
-            a.row_count ??
-            a.total_rows
-        );
-
-
-    const cols =
-        num(
-            a.columns ??
-            a.column_count ??
-            a.total_columns
-        );
-
-
-    const quality =
-        safePercentage(
-            a.quality_score ??
-            a.data_quality ??
-            a.quality ??
-            0
-        );
-
-
-    const anomalies =
-        getAnomalies(a);
-
-
-    const anomalyColumns =
-        Object.keys(
-            anomalies || {}
-        ).filter(k => {
-
-            const x =
-                anomalies[k];
-
-            return (
-                x &&
-                (
-                    typeof x === 'object' ||
-                    num(x) > 0
-                )
-            );
-
-        });
-
-
-    const anomalyCount =
-        anomalyColumns.reduce(
-            (sum,k) => {
-
-                const x =
-                    anomalies[k];
-
-
-                if(
-                    x &&
-                    typeof x === 'object'
-                ){
-
-                    return sum +
-                        num(
-                            x.count ??
-                            x.anomalous_values ??
-                            x.values ??
-                            0
-                        );
-                }
-
-
-                return sum +
-                    num(x);
-
-            },
-            0
-        );
-
-
-    /* File */
-
-    document.getElementById(
-        'fileName'
-    ).textContent =
-        a.filename ||
-        a.file_name ||
-        'Analytics Dashboard';
-
-
-    document.getElementById(
-        'fileMeta'
-    ).textContent =
-        `${formatNumber(rows)} rows × ${formatNumber(cols)} columns` +
-        (
-            a.file_type
-                ? ` • ${String(a.file_type).toUpperCase()}`
-                : ''
-        );
-
-
-    /* KPIs */
-
-    document.getElementById(
-        'rowsKpi'
-    ).textContent =
-        formatNumber(rows);
-
-
-    document.getElementById(
-        'colsKpi'
-    ).textContent =
-        formatNumber(cols);
-
-
-    document.getElementById(
-        'anomalyKpi'
-    ).textContent =
-        formatNumber(
-            anomalyColumns.length
-        );
-
-
-    document.getElementById(
-        'qualityKpi'
-    ).textContent =
-        quality.toFixed(1) + '%';
-
-
-    document.getElementById(
-        'qualityTop'
-    ).textContent =
-        quality.toFixed(1) + '%';
-
-
-    document.getElementById(
-        'qualityCenter'
-    ).textContent =
-        quality.toFixed(1) + '%';
-
-
-    const stats =
-        getStats(a);
-
-
-    const columns =
-        getColumns(a);
-
-
-    const numericNames =
-        Object.keys(stats).filter(
-            k => {
-
-                const s =
-                    stats[k] || {};
-
-
-                return [
-                    'mean',
-                    'median',
-                    'std',
-                    'min',
-                    'max'
-                ].some(
-                    x =>
-                        s[x] !== undefined &&
-                        s[x] !== null
-                );
-
-            }
-        );
-
-
-    document.getElementById(
-        'numericText'
-    ).textContent =
-        `${numericNames.length} numeric column(s) detected.`;
-
-
-    renderNumericChart(
-        stats,
-        numericNames
-    );
-
-
-    renderTypeChart(
-        columns
-    );
-
-
-    renderTrendChart(
-        stats,
-        numericNames
-    );
-
-
-    renderQualityChart(
-        quality
-    );
-
-
-    renderCorrelation(
-        getCorrelations(a),
-        numericNames
-    );
-
-
-    renderAnomalyChart(
-        rows,
-        anomalyCount,
-        anomalyColumns,
-        anomalies
-    );
-
-
-    renderInsights(
-        a,
-        rows,
-        cols,
-        quality,
-        numericNames.length,
-        anomalyColumns.length
-    );
-
-
-    renderColumns(
-        columns
-    );
-
-}
-
-
-/* =========================================================
-   NUMERIC CHART
-========================================================= */
-
-function renderNumericChart(
-    stats,
-    names
-){
-
-    destroyChart('numeric');
-
-
-    const selected =
-        names.slice(0,10);
-
-
-    const values =
-        selected.map(
-            n =>
-                num(
-                    stats[n]?.mean
-                )
-        );
-
-
-    const labels =
-        selected.map(
-            n =>
-                n.replaceAll('_',' ')
-        );
-
-
-    charts.numeric =
-        new Chart(
-            document.getElementById(
-                'numericChart'
-            ),
-            {
-
-                type:'bar',
-
-                data:{
-
-                    labels,
-
-                    datasets:[{
-
-                        label:'Average',
-
-                        data:values,
-
-                        backgroundColor:
-                            selected.map(
-                                (_,i) =>
-                                    chartColors[
-                                        i %
-                                        chartColors.length
-                                    ]
-                            ),
-
-                        borderRadius:7,
-
-                        borderSkipped:false
-
-                    }]
-
-                },
-
-                options:{
-
-                    ...baseChartOptions(),
-
-                    plugins:{
-                        legend:{
-                            display:false
-                        }
-                    },
-
-                    scales:{
-
-                        x:
-                            baseChartOptions()
-                            .scales.x,
-
-                        y:{
-                            ...baseChartOptions()
-                                .scales.y,
-
-                            beginAtZero:true
-
-                        }
-
-                    }
-
-                }
-
-            }
-        );
-
-}
-
-
-/* =========================================================
-   DATA TYPE CHART
-========================================================= */
-
-function renderTypeChart(
-    columns
-){
-
-    destroyChart('type');
-
-
-    const counts = {};
-
-
-    Object.values(
-        columns
-    ).forEach(type => {
-
-        let t =
-            String(type)
-            .toLowerCase();
-
-
-        if(
-            t.includes('int') ||
-            t.includes('float') ||
-            t.includes('double') ||
-            t.includes('number')
-        ){
-
-            t = 'Numeric';
-
-        }else if(
-            t.includes('bool')
-        ){
-
-            t = 'Boolean';
-
-        }else if(
-            t.includes('date') ||
-            t.includes('time')
-        ){
-
-            t = 'Date/Time';
-
+    const id=analyses[0].id || analyses[0].analysis_id;
+
+    const detailResponse=await api('/api/analyses/'+id);
+    if(!detailResponse || !detailResponse.ok){
+        throw new Error('Could not load analysis details.');
+    }
+
+    const detail=await detailResponse.json();
+    currentAnalysis=detail.analysis || detail;
+
+    /* Preferred HR/BI endpoint from the upgraded backend. */
+    try{
+        const boardResponse=await api('/api/analyses/'+id+'/dashboard');
+        if(boardResponse && boardResponse.ok){
+            const result=await boardResponse.json();
+            board=result.dashboard || {};
         }else{
-
-            t = 'Categorical';
-
+            board=null;
         }
+    }catch(e){
+        board=null;
+    }
 
+    renderDashboard();
+}
 
-        counts[t] =
-            (counts[t] || 0) + 1;
+function renderEmpty(){
+    destroyCharts();
+    $('datasetTitle').textContent='No analysis found. Upload a CSV or Excel file first.';
 
-    });
+    $('dashboardArea').innerHTML=`
+        <div class="card empty">
+            <div>
+                <div style="font-size:36px">📊</div>
+                <div class="empty-title">No analysis found</div>
+                <div class="empty-sub">Upload a CSV or Excel dataset to build your dashboard.</div>
+                <button class="btn primary" style="margin-top:13px" onclick="openUpload()">📤 Upload Data</button>
+            </div>
+        </div>
+    `;
+}
 
+function renderDashboard(){
+    destroyCharts();
 
-    const labels =
-        Object.keys(counts);
+    const a=currentAnalysis || {};
+    const d=board || {};
 
+    $('datasetTitle').textContent=
+        `${a.filename || 'Dataset'} • ${number(a.rows,0)} rows • ${number(a.columns,0)} columns`;
 
-    const values =
-        Object.values(counts);
+    const stats=a.statistics || {};
+    const types=a.data_types || {};
+    const anomalies=a.anomalies || {};
+    const correlations=a.correlations || {};
+    const insights=Array.isArray(a.insights) ? a.insights : [];
 
+    const numericColumns=Object.keys(stats);
+    const allColumns=a.column_names || Object.keys(types);
+    const numericCount=numericColumns.length;
+    const categoricalCount=Object.values(types)
+        .filter(v=>/object|category|string/i.test(String(v))).length;
+
+    const quality=Math.max(0,Math.min(100,Number(a.quality_score ?? 0)));
+    const anomalyCount=Object.values(anomalies)
+        .reduce((s,x)=>s+Number(x?.count || 0),0);
+
+    /* HR values when HR columns were detected, otherwise sensible generic KPIs. */
+    const employees=Number(d.employee_count ?? a.rows ?? 0);
+    const attrition=Number(d.attrition_count ?? anomalyCount ?? 0);
+    const attritionRate=Number(d.attrition_rate ?? (employees?attrition/employees*100:0));
+    const active=Number(d.active_employees ?? Math.max(employees-attrition,0));
+    const avgAge=d.avg_age ?? null;
+
+    $('dashboardArea').innerHTML=`
+        <section class="summary-grid">
+            <div class="summary-card">
+                <div class="summary-head"><span>Employee Count</span><span class="summary-icon">👥</span></div>
+                <div class="summary-value">${number(employees)}</div>
+                <div class="summary-sub">Total records / headcount</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-head"><span>Attrition Count</span><span class="summary-icon">↘</span></div>
+                <div class="summary-value">${number(attrition)}</div>
+                <div class="summary-sub">Detected from dataset</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-head"><span>Attrition Rate</span><span class="summary-icon">%</span></div>
+                <div class="summary-value">${number(attritionRate,2)}%</div>
+                <div class="summary-sub">Attrition ÷ employee count</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-head"><span>Active Employees</span><span class="summary-icon">✓</span></div>
+                <div class="summary-value">${number(active)}</div>
+                <div class="summary-sub">Current estimated active count</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-head"><span>Data Quality</span><span class="summary-icon">◎</span></div>
+                <div class="summary-value">${number(quality,1)}%</div>
+                <div class="summary-sub">${numericCount} numeric • ${categoricalCount} categorical</div>
+            </div>
+        </section>
+
+        <section class="grid">
+            <div class="card">
+                <div class="card-head">
+                    <div>
+                        <div class="card-title">Department-wise Attrition</div>
+                        <div class="card-sub">Distribution of attrition across departments</div>
+                    </div>
+                </div>
+                <div class="chart-box"><canvas id="departmentChart"></canvas></div>
+            </div>
+
+            <div class="card">
+                <div class="card-head">
+                    <div>
+                        <div class="card-title">Employees by Age Group</div>
+                        <div class="card-sub">Headcount distribution by age band</div>
+                    </div>
+                </div>
+                <div class="chart-box"><canvas id="ageChart"></canvas></div>
+            </div>
+        </section>
+
+        <section class="grid-wide">
+            <div class="card">
+                <div class="card-head">
+                    <div>
+                        <div class="card-title">Job Satisfaction Rating</div>
+                        <div class="card-sub">Employee count and attrition rate by rating</div>
+                    </div>
+                </div>
+                <div id="satisfactionTable"></div>
+            </div>
+
+            <div class="card">
+                <div class="card-head">
+                    <div>
+                        <div class="card-title">Education / Category Attrition</div>
+                        <div class="card-sub">Category-wise attrition summary</div>
+                    </div>
+                </div>
+                <div class="chart-box small"><canvas id="educationChart"></canvas></div>
+            </div>
+        </section>
+
+        <section class="grid-wide">
+            <div class="card">
+                <div class="card-head">
+                    <div>
+                        <div class="card-title">Attrition by Gender & Age Group</div>
+                        <div class="card-sub">Compact demographic comparison</div>
+                    </div>
+                </div>
+                <div id="genderAge"></div>
+            </div>
+
+            <div class="card">
+                <div class="card-head">
+                    <div>
+                        <div class="card-title">Data Quality</div>
+                        <div class="card-sub">Overall score from completeness and duplicate checks</div>
+                    </div>
+                </div>
+                <div class="quality-wrap">
+                    <div class="gauge" id="qualityGauge">
+                        <div class="gauge-center">
+                            <div class="gauge-score">${number(quality,1)}%</div>
+                            <div class="gauge-caption">QUALITY</div>
+                        </div>
+                    </div>
+                    <div class="quality-legend">
+                        <div class="quality-line"><span class="quality-dot" style="background:var(--green)"></span>Good data</div>
+                        <div class="quality-line"><span class="quality-dot" style="background:var(--yellow)"></span>Review needed</div>
+                        <div class="quality-line"><span class="quality-dot" style="background:var(--red)"></span>Needs attention</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="grid-wide">
+            <div class="card">
+                <div class="card-head">
+                    <div>
+                        <div class="card-title">Numeric Overview</div>
+                        <div class="card-sub">Mean, minimum and maximum values</div>
+                    </div>
+                </div>
+                <div class="chart-box small"><canvas id="numericChart"></canvas></div>
+            </div>
+
+            <div class="card">
+                <div class="card-head">
+                    <div>
+                        <div class="card-title">Correlation Heatmap</div>
+                        <div class="card-sub">Pearson correlation between numeric columns</div>
+                    </div>
+                </div>
+                <div id="heatmap"></div>
+            </div>
+        </section>
+
+        <section class="grid-wide">
+            <div class="card">
+                <div class="card-head">
+                    <div>
+                        <div class="card-title">AI Insights</div>
+                        <div class="card-sub">Automatically generated from the uploaded dataset</div>
+                    </div>
+                </div>
+                <div class="insights">
+                    ${(insights.length?insights:['No AI insights available.'])
+                        .map(x=>`<div class="insight">✦ ${esc(x)}</div>`).join('')}
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-head">
+                    <div>
+                        <div class="card-title">Dataset Columns</div>
+                        <div class="card-sub">${allColumns.length} fields detected</div>
+                    </div>
+                </div>
+                <div class="pills">
+                    ${allColumns.map(c=>`<span class="pill">${esc(c)}</span>`).join('')}
+                </div>
+            </div>
+        </section>
+    `;
+
+    const department=d.department_attrition || [];
+    const age=d.age_distribution || [];
+    const satisfaction=d.job_satisfaction || [];
+    const education=d.education_attrition || [];
+    const genderAge=d.gender_age_attrition || [];
+
+    renderDepartment(department, stats);
+    renderAge(age);
+    renderSatisfaction(satisfaction, stats);
+    renderEducation(education, department, numericColumns);
+    renderGenderAge(genderAge);
+    renderQualityGauge(quality);
+    renderNumeric(stats,numericColumns);
+    renderHeatmap(correlations);
+}
+
+/* charts */
+const axisOptions={
+    ticks:{color:'#849bb4',font:{size:9}},
+    grid:{color:'#122b44'}
+};
+
+function renderDepartment(items, stats){
+    let labels=[];
+    let values=[];
+
+    if(items.length){
+        labels=items.map(x=>x.name);
+        values=items.map(x=>Number(x.count||0));
+    }else{
+        labels=Object.keys(stats).slice(0,6);
+        values=labels.map(x=>Math.max(1,Number(stats[x]?.mean||0)));
+        if(!labels.length){labels=['No data'];values=[1]}
+    }
+
+    charts.push(new Chart($('departmentChart'),{
+        type:'doughnut',
+        data:{
+            labels,
+            datasets:[{
+                data:values,
+                backgroundColor:['#1599ff','#1fb7ee','#27d6c0','#3279f0','#7a63f7','#24cf90'],
+                borderColor:'#09192b',
+                borderWidth:2
+            }]
+        },
+        options:{
+            responsive:true,
+            maintainAspectRatio:false,
+            cutout:'58%',
+            plugins:{
+                legend:{
+                    display:true,
+                    position:'right',
+                    labels:{
+                        color:'#96a9bf',
+                        font:{size:9},
+                        boxWidth:8,
+                        padding:8
+                    }
+                }
+            }
+        }
+    }));
+}
+
+function renderAge(items){
+    if(!items.length){
+        $('ageChart').parentElement.innerHTML='<div class="empty">No Age column available.</div>';
+        return;
+    }
+
+    charts.push(new Chart($('ageChart'),{
+        type:'bar',
+        data:{
+            labels:items.map(x=>x.name),
+            datasets:[{
+                data:items.map(x=>Number(x.count||0)),
+                backgroundColor:'#2c9ef4',
+                borderRadius:4,
+                barPercentage:.76,
+                categoryPercentage:.72
+            }]
+        },
+        options:{
+            responsive:true,
+            maintainAspectRatio:false,
+            plugins:{legend:{display:false}},
+            scales:{
+                x:axisOptions,
+                y:axisOptions
+            }
+        }
+    }));
+}
+
+function renderSatisfaction(items, stats){
+    const box=$('satisfactionTable');
+
+    if(!items.length){
+        const fallback=Object.keys(stats).slice(0,6);
+        if(!fallback.length){
+            box.innerHTML='<div class="empty">No satisfaction data available.</div>';
+            return;
+        }
+        items=fallback.map((name,i)=>({
+            rating:name,
+            label:'Numeric',
+            employees:Number(currentAnalysis.rows||0),
+            attrition:0
+        }));
+    }
+
+    box.innerHTML=`
+        <div style="overflow:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:9px">
+            <thead>
+                <tr style="background:#0d223a;color:#9eb4ca">
+                    <th style="padding:8px;text-align:left">RATING</th>
+                    <th style="padding:8px;text-align:left">LEVEL</th>
+                    <th style="padding:8px;text-align:right">EMPLOYEES</th>
+                    <th style="padding:8px;text-align:right">ATTRITION</th>
+                    <th style="padding:8px;text-align:right">RATE</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${items.map(x=>{
+                    const employees=Number(x.employees||0);
+                    const attrition=Number(x.attrition||0);
+                    const rate=employees?attrition/employees*100:0;
+                    return `<tr style="border-bottom:1px solid #173452;color:#a8bad0">
+                        <td style="padding:8px">${esc(x.rating)}</td>
+                        <td style="padding:8px">${esc(x.label||'—')}</td>
+                        <td style="padding:8px;text-align:right">${number(employees)}</td>
+                        <td style="padding:8px;text-align:right">${number(attrition)}</td>
+                        <td style="padding:8px;text-align:right;color:#44d8a4">${number(rate,1)}%</td>
+                    </tr>`;
+                }).join('')}
+            </tbody>
+        </table></div>
+    `;
+}
+
+function renderEducation(items, departments, numericColumns){
+    let labels=[];
+    let values=[];
+
+    if(items.length){
+        labels=items.map(x=>x.name);
+        values=items.map(x=>Number(x.count||0));
+    }else if(departments.length){
+        labels=departments.map(x=>x.name);
+        values=departments.map(x=>Number(x.count||0));
+    }else{
+        labels=numericColumns.slice(0,6);
+        values=labels.map(x=>Number(currentAnalysis.statistics?.[x]?.mean||0));
+    }
 
     if(!labels.length){
-
-        document.getElementById(
-            'typeLegend'
-        ).innerHTML =
-            '<div class="card-note">No column type information.</div>';
-
+        $('educationChart').parentElement.innerHTML='<div class="empty">No category data available.</div>';
         return;
     }
 
-
-    charts.type =
-        new Chart(
-            document.getElementById(
-                'typeChart'
-            ),
-            {
-
-                type:'doughnut',
-
-                data:{
-
-                    labels,
-
-                    datasets:[{
-
-                        data:values,
-
-                        backgroundColor:
-                            chartColors,
-
-                        borderWidth:2,
-
-                        borderColor:'#101f33',
-
-                        hoverOffset:5
-
-                    }]
-
-                },
-
-                options:{
-
-                    responsive:true,
-
-                    maintainAspectRatio:false,
-
-                    cutout:'67%',
-
-                    plugins:{
-                        legend:{
-                            display:false
-                        }
-                    }
-
+    charts.push(new Chart($('educationChart'),{
+        type:'bar',
+        data:{
+            labels,
+            datasets:[{
+                data:values,
+                backgroundColor:'#257fdc',
+                borderRadius:4,
+                barPercentage:.75,
+                categoryPercentage:.72
+            }]
+        },
+        options:{
+            responsive:true,
+            maintainAspectRatio:false,
+            indexAxis:'y',
+            plugins:{legend:{display:false}},
+            scales:{
+                x:axisOptions,
+                y:{
+                    ticks:{color:'#8ea4bc',font:{size:9}},
+                    grid:{display:false}
                 }
-
             }
-        );
+        }
+    }));
+}
 
+function renderGenderAge(items){
+    const box=$('genderAge');
 
-    document.getElementById(
-        'typeLegend'
-    ).innerHTML =
+    if(!items.length){
+        box.innerHTML='<div class="empty">Gender + Age columns were not detected.</div>';
+        return;
+    }
 
-        labels.map(
-            (label,i) => `
-
-                <div class="legend-row">
-
-                    <span
-                        class="dot"
-                        style="background:${chartColors[
-                            i %
-                            chartColors.length
-                        ]}">
-                    </span>
-
-                    <span>
-                        ${esc(label)}
-                    </span>
-
-                    <span class="legend-value">
-                        ${values[i]}
-                    </span>
-
+    box.innerHTML=`
+        <div style="display:grid;grid-template-columns:repeat(${Math.min(items.length,5)},1fr);gap:4px;align-items:start">
+            ${items.slice(0,5).map((x,i)=>`
+                <div style="min-width:0;text-align:center">
+                    <div style="height:140px;position:relative">
+                        <canvas id="ageGender${i}"></canvas>
+                        <div style="position:absolute;left:50%;top:49%;transform:translate(-50%,-50%);font-weight:850;font-size:12px;color:#dfefff">
+                            ${number(x.overall_rate,1)}%
+                            <div style="font-size:7px;color:#758da5;font-weight:500">rate</div>
+                        </div>
+                    </div>
+                    <div style="font-size:8px;color:#8ca3bb;margin-top:1px">${esc(x.age_group)}</div>
                 </div>
-
-            `
-        ).join('');
-
-}
-
-
-/* =========================================================
-   TREND CHART
-========================================================= */
-
-function renderTrendChart(
-    stats,
-    names
-){
-
-    destroyChart('trend');
-
-
-    const selected =
-        names.slice(0,5);
-
-
-    const labels = [
-        'Min',
-        'Median',
-        'Mean',
-        'Max'
-    ];
-
-
-    const datasets =
-        selected.map(
-            (name,i) => {
-
-                const s =
-                    stats[name] || {};
-
-
-                return {
-
-                    label:
-                        name.replaceAll(
-                            '_',
-                            ' '
-                        ),
-
-                    data:[
-                        num(s.min),
-                        num(s.median),
-                        num(s.mean),
-                        num(s.max)
-                    ],
-
-                    borderColor:
-                        chartColors[
-                            i %
-                            chartColors.length
-                        ],
-
-                    backgroundColor:
-                        chartColors[
-                            i %
-                            chartColors.length
-                        ],
-
-                    borderWidth:2,
-
-                    tension:.35,
-
-                    pointRadius:3
-
-                };
-
-            }
-        );
-
-
-    charts.trend =
-        new Chart(
-            document.getElementById(
-                'trendChart'
-            ),
-            {
-
-                type:'line',
-
-                data:{
-                    labels,
-                    datasets
-                },
-
-                options:
-                    baseChartOptions()
-
-            }
-        );
-
-
-    document.getElementById(
-        'trendLabel'
-    ).textContent =
-        selected.length
-            ? selected
-                .join(', ')
-                .replaceAll('_',' ')
-            : 'Numeric statistics';
-
-}
-
-
-/* =========================================================
-   QUALITY CHART
-========================================================= */
-
-function renderQualityChart(
-    quality
-){
-
-    destroyChart('quality');
-
-
-    const q =
-        safePercentage(
-            quality
-        );
-
-
-    charts.quality =
-        new Chart(
-            document.getElementById(
-                'qualityChart'
-            ),
-            {
-
-                type:'doughnut',
-
-                data:{
-
-                    labels:[
-                        'Quality',
-                        'Remaining'
-                    ],
-
-                    datasets:[{
-
-                        data:[
-                            q,
-                            100-q
-                        ],
-
-                        backgroundColor:[
-                            '#3ddc97',
-                            '#1b3046'
-                        ],
-
-                        borderWidth:0
-
-                    }]
-
-                },
-
-                options:{
-
-                    responsive:true,
-
-                    maintainAspectRatio:false,
-
-                    cutout:'78%',
-
-                    rotation:-110,
-
-                    circumference:220,
-
-                    plugins:{
-                        legend:{
-                            display:false
-                        },
-
-                        tooltip:{
-                            enabled:false
-                        }
-                    }
-
-                }
-
-            }
-        );
-
-
-    document.getElementById(
-        'qualityText'
-    ).textContent =
-
-        q >= 90
-            ? 'Excellent data quality with very few issues.'
-            : q >= 75
-                ? 'Good quality, but some cleaning may be useful.'
-                : 'The dataset may need additional cleaning before analysis.';
-
-}
-
-
-/* =========================================================
-   CORRELATION
-========================================================= */
-
-function correlationValue(
-    correlations,
-    row,
-    col
-){
-
-    if(!correlations){
-        return null;
-    }
-
-
-    if(Array.isArray(correlations)){
-
-        const item =
-            correlations.find(
-                x =>
-                    (
-                        x.variable === row &&
-                        x.column === col
-                    ) ||
-                    (
-                        x.row === row &&
-                        x.column === col
-                    )
-            );
-
-
-        return item?.value ?? null;
-    }
-
-
-    const r =
-        correlations[row];
-
-
-    if(
-        r &&
-        typeof r === 'object'
-    ){
-
-        return r[col] ?? null;
-    }
-
-
-    return null;
-
-}
-
-
-/* =========================================================
-   CORRELATION COLOR
-========================================================= */
-
-function correlationColor(
-    value
-){
-
-    const v =
-        Math.max(
-            -1,
-            Math.min(
-                1,
-                num(value)
-            )
-        );
-
-
-    const alpha =
-        .10 +
-        Math.abs(v) * .72;
-
-
-    if(v >= 0){
-
-        return `rgba(
-            54,
-            184,
-            255,
-            ${alpha}
-        )`;
-
-    }
-
-
-    return `rgba(
-        255,
-        102,
-        133,
-        ${alpha}
-    )`;
-
-}
-
-
-/* =========================================================
-   CORRELATION HEATMAP
-========================================================= */
-
-function renderCorrelation(
-    correlations,
-    names
-){
-
-    const target =
-        document.getElementById(
-            'heatmap'
-        );
-
-
-    if(!names.length){
-
-        target.innerHTML =
-            `
-            <div class="empty">
-                No numeric columns available for correlation.
-            </div>
-            `;
-
-        return;
-    }
-
-
-    const selected =
-        names.slice(0,8);
-
-
-    let html = `
-
-        <div
-            class="heatmap"
-            style="
-                grid-template-columns:
-                160px repeat(
-                    ${selected.length},
-                    minmax(70px,1fr)
-                )
-            "
-        >
-
-    `;
-
-
-    html += `
-        <div class="hm-cell hm-head">
-            VARIABLE
+            `).join('')}
         </div>
     `;
 
-
-    selected.forEach(
-        column => {
-
-            html += `
-                <div class="hm-cell hm-head">
-                    ${esc(column)}
-                </div>
-            `;
-
-        }
-    );
-
-
-    selected.forEach(
-        row => {
-
-            html += `
-                <div class="hm-cell hm-label">
-                    ${esc(row)}
-                </div>
-            `;
-
-
-            selected.forEach(
-                col => {
-
-                    const value =
-                        row === col
-                            ? 1
-                            : correlationValue(
-                                correlations,
-                                row,
-                                col
-                            );
-
-
-                    const shown =
-                        value === null ||
-                        value === undefined
-                            ? '—'
-                            : num(value)
-                                .toFixed(2);
-
-
-                    const background =
-                        value === null ||
-                        value === undefined
-                            ? '#14263b'
-                            : correlationColor(
-                                value
-                            );
-
-
-                    html += `
-                        <div
-                            class="hm-cell"
-                            style="
-                                background:${background}
-                            "
-                        >
-                            ${shown}
-                        </div>
-                    `;
-
-                }
-            );
-
-        }
-    );
-
-
-    html += `
-        </div>
-    `;
-
-
-    target.innerHTML =
-        html;
-
-}
-
-
-/* =========================================================
-   ANOMALY CHART
-========================================================= */
-
-function renderAnomalyChart(
-    rows,
-    count,
-    columns,
-    anomalies
-){
-
-    destroyChart('anomaly');
-
-
-    const normal =
-        Math.max(
-            0,
-            rows - count
-        );
-
-
-    charts.anomaly =
-        new Chart(
-            document.getElementById(
-                'anomalyChart'
-            ),
-            {
-
-                type:'doughnut',
-
-                data:{
-
-                    labels:[
-                        'Normal',
-                        'Anomalous'
-                    ],
-
-                    datasets:[{
-
-                        data:[
-                            normal,
-                            count
-                        ],
-
-                        backgroundColor:[
-                            '#23425e',
-                            '#ff6685'
-                        ],
-
-                        borderColor:'#101f33',
-
-                        borderWidth:3
-
-                    }]
-
-                },
-
-                options:{
-
-                    responsive:true,
-
-                    maintainAspectRatio:false,
-
-                    cutout:'66%',
-
-                    plugins:{
-                        legend:{
-                            display:false
-                        }
+    items.slice(0,5).forEach((x,i)=>{
+        const labels=Object.keys(x.gender_rates || {});
+        const values=labels.map(g=>Number(x.gender_rates[g]||0));
+        charts.push(new Chart($('ageGender'+i),{
+            type:'doughnut',
+            data:{
+                labels,
+                datasets:[{
+                    data:values.length?values:[1],
+                    backgroundColor:['#0c5f74','#2bb4c0'],
+                    borderColor:'#08172a',
+                    borderWidth:2
+                }]
+            },
+            options:{
+                responsive:true,
+                maintainAspectRatio:false,
+                cutout:'64%',
+                plugins:{
+                    legend:{
+                        display:i===0,
+                        position:'bottom',
+                        labels:{color:'#8ea4ba',font:{size:7},boxWidth:7,padding:5}
                     }
-
-                }
-
-            }
-        );
-
-
-    document.getElementById(
-        'anomalyTitle'
-    ).textContent =
-
-        count
-            ? `${formatNumber(count)} unusual value${count === 1 ? '' : 's'}`
-            : 'No anomalies';
-
-
-    document.getElementById(
-        'anomalyDescription'
-    ).textContent =
-
-        count
-            ? `${columns.length} column(s) contain detected outliers.`
-            : 'No unusual values were detected in the dataset.';
-
-
-    const list =
-        document.getElementById(
-            'alertList'
-        );
-
-
-    if(!columns.length){
-
-        list.innerHTML =
-            `
-            <div
-                class="alert"
-                style="
-                    border-color:#29435d;
-                    background:#11243a
-                "
-            >
-                ✓ Dataset looks clean.
-            </div>
-            `;
-
-        return;
-    }
-
-
-    list.innerHTML =
-        columns
-            .slice(0,4)
-            .map(
-                key => {
-
-                    const x =
-                        anomalies[key] ||
-                        {};
-
-
-                    const c =
-                        num(
-                            x.count ??
-                            x.anomalous_values ??
-                            x.values ??
-                            x
-                        );
-
-
-                    const lower =
-                        x.lower_bound ??
-                        x.lower ??
-                        null;
-
-
-                    const upper =
-                        x.upper_bound ??
-                        x.upper ??
-                        null;
-
-
-                    return `
-
-                        <div class="alert">
-
-                            ⚠
-                            <b>
-                                ${esc(key)}
-                            </b>
-
-                            —
-                            ${formatNumber(c)}
-                            anomalous value(s)
-
-                            ${
-                                lower !== null ||
-                                upper !== null
-                                    ? `
-                                        <br>
-
-                                        <span
-                                            style="
-                                                color:#8fa3b9;
-                                                font-size:10px
-                                            "
-                                        >
-                                            Bounds:
-                                            ${formatNumber(lower)}
-                                            →
-                                            ${formatNumber(upper)}
-                                        </span>
-                                    `
-                                    : ''
-                            }
-
-                        </div>
-
-                    `;
-
-                }
-            )
-            .join('');
-
-}
-
-
-/* =========================================================
-   AI INSIGHTS
-========================================================= */
-
-function renderInsights(
-    a,
-    rows,
-    cols,
-    quality,
-    numericCount,
-    anomalyCount
-){
-
-    const missing =
-        num(
-            a.missing_values ??
-            a.missing_count ??
-            0
-        );
-
-
-    const duplicates =
-        num(
-            a.duplicate_rows ??
-            a.duplicates ??
-            0
-        );
-
-
-    const items = [
-
-        {
-            title:'📊 DATASET',
-
-            text:
-                `This dataset contains ${formatNumber(rows)} rows and ${formatNumber(cols)} columns.`
-        },
-
-        {
-            title:'💯 QUALITY',
-
-            text:
-                `Overall data quality score is ${quality.toFixed(1)}%.`
-        },
-
-        {
-            title:'🔢 NUMERIC',
-
-            text:
-                `Detected ${numericCount} numeric column(s) for statistical analysis.`
-        },
-
-        {
-            title:'🧹 MISSING VALUES',
-
-            text:
-                missing
-                    ? `${formatNumber(missing)} missing value(s) were detected.`
-                    : 'No missing values were detected.'
-        },
-
-        {
-            title:'📋 DUPLICATES',
-
-            text:
-                duplicates
-                    ? `${formatNumber(duplicates)} duplicate row(s) were detected.`
-                    : 'No duplicate rows were detected.'
-        },
-
-        {
-            title:'⚠ ANOMALIES',
-
-            text:
-                anomalyCount
-                    ? `Anomalies were detected in ${anomalyCount} column(s). Review the anomaly panel.`
-                    : 'No anomaly columns were detected.'
-        }
-
-    ];
-
-
-    document.getElementById(
-        'insights'
-    ).innerHTML =
-
-        items
-            .map(
-                (item,index) => `
-
-                    <div
-                        class="
-                            insight
-                            ${index === 1 ? 'success' : ''}
-                            ${
-                                item.title.includes('ANOMALIES') &&
-                                anomalyCount
-                                    ? 'warning'
-                                    : ''
-                            }
-                        "
-                    >
-
-                        <div class="insight-title">
-                            ${esc(item.title)}
-                        </div>
-
-                        <div class="insight-text">
-                            ${esc(item.text)}
-                        </div>
-
-                    </div>
-
-                `
-            )
-            .join('');
-
-}
-
-
-/* =========================================================
-   COLUMNS
-========================================================= */
-
-function renderColumns(
-    columns
-){
-
-    const target =
-        document.getElementById(
-            'columns'
-        );
-
-
-    const entries =
-        Object.entries(
-            columns
-        );
-
-
-    if(!entries.length){
-
-        target.innerHTML =
-            `
-            <span class="card-note">
-                No column information available.
-            </span>
-            `;
-
-        return;
-    }
-
-
-    target.innerHTML =
-
-        entries
-            .map(
-                ([name,type]) => `
-
-                    <div class="column-pill">
-
-                        <b>
-                            ${esc(name)}
-                        </b>
-
-                        ·
-
-                        ${esc(type)}
-
-                    </div>
-
-                `
-            )
-            .join('');
-
-}
-
-
-/* =========================================================
-   DOWNLOAD
-========================================================= */
-
-async function downloadAnalysis(){
-
-    if(!currentAnalysis){
-
-        alert(
-            'No analysis is currently loaded.'
-        );
-
-        return;
-    }
-
-
-    const id =
-        currentAnalysis.id ||
-        currentAnalysis.analysis_id;
-
-
-    if(!id){
-
-        alert(
-            'Analysis ID not found.'
-        );
-
-        return;
-    }
-
-
-    try{
-
-        const response =
-            await api(
-                `/api/analyses/${id}/download`
-            );
-
-
-        if(!response){
-
-            return;
-        }
-
-
-        if(!response.ok){
-
-            let message =
-                'Unable to download the analysis.';
-
-
-            try{
-
-                const data =
-                    await response.json();
-
-                message =
-                    data.error ||
-                    data.message ||
-                    message;
-
-            }catch(e){}
-
-
-            alert(message);
-
-            return;
-        }
-
-
-        const blob =
-            await response.blob();
-
-
-        const url =
-            URL.createObjectURL(
-                blob
-            );
-
-
-        const a =
-            document.createElement(
-                'a'
-            );
-
-
-        a.href = url;
-
-
-        a.download =
-            currentAnalysis.filename ||
-            'analysis-file';
-
-
-        document.body.appendChild(a);
-
-
-        a.click();
-
-
-        a.remove();
-
-
-        setTimeout(
-            () =>
-                URL.revokeObjectURL(url),
-            1000
-        );
-
-
-    }catch(error){
-
-        console.error(
-            error
-        );
-
-        alert(
-            'Download failed.'
-        );
-    }
-
-}
-
-
-/* =========================================================
-   FAVORITE
-========================================================= */
-
-async function toggleFavorite(){
-
-    if(!currentAnalysis){
-
-        return;
-    }
-
-
-    const id =
-        currentAnalysis.id ||
-        currentAnalysis.analysis_id;
-
-
-    if(!id){
-
-        return;
-    }
-
-
-    try{
-
-        const response =
-            await api(
-                `/api/analyses/${id}/favorite`,
-                {
-                    method:'POST'
-                }
-            );
-
-
-        if(!response){
-
-            return;
-        }
-
-
-        let data = {};
-
-
-        try{
-
-            data =
-                await response.json();
-
-        }catch(e){}
-
-
-        if(response.ok){
-
-            alert(
-                data.message ||
-                'Favorite status updated.'
-            );
-
-        }else{
-
-            alert(
-                data.error ||
-                'Unable to update favorite status.'
-            );
-        }
-
-
-    }catch(error){
-
-        console.error(
-            error
-        );
-
-        alert(
-            'Unable to update favorite.'
-        );
-    }
-
-}
-
-
-/* =========================================================
-   SHARE
-========================================================= */
-
-async function shareAnalysis(){
-
-    if(!currentAnalysis){
-
-        return;
-    }
-
-
-    const id =
-        currentAnalysis.id ||
-        currentAnalysis.analysis_id;
-
-
-    if(!id){
-
-        return;
-    }
-
-
-    const email =
-        prompt(
-            'Enter the email address to share this analysis with:'
-        );
-
-
-    if(!email){
-
-        return;
-    }
-
-
-    const cleanEmail =
-        email.trim();
-
-
-    if(!cleanEmail.includes('@')){
-
-        alert(
-            'Please enter a valid email address.'
-        );
-
-        return;
-    }
-
-
-    try{
-
-        const response =
-            await api(
-                `/api/analyses/${id}/share`,
-                {
-                    method:'POST',
-
-                    headers:{
-                        'Content-Type':
-                            'application/json'
-                    },
-
-                    body:
-                        JSON.stringify({
-                            email:cleanEmail
-                        })
-                }
-            );
-
-
-        if(!response){
-
-            return;
-        }
-
-
-        let data = {};
-
-
-        try{
-
-            data =
-                await response.json();
-
-        }catch(e){}
-
-
-        if(response.ok){
-
-            alert(
-                data.message ||
-                'Analysis shared successfully.'
-            );
-
-        }else{
-
-            alert(
-                data.error ||
-                'Unable to share the analysis.'
-            );
-        }
-
-
-    }catch(error){
-
-        console.error(
-            error
-        );
-
-        alert(
-            'Unable to share the analysis.'
-        );
-    }
-
-}
-
-
-/* =========================================================
-   LOGOUT
-========================================================= */
-
-async function logout(){
-
-    try{
-
-        await fetch(
-            '/api/auth/logout',
-            {
-                method:'POST',
-                credentials:'include',
-                headers:{
-                    'Accept':
-                        'application/json'
                 }
             }
-        );
-
-    }catch(error){
-
-        console.error(
-            'Logout error:',
-            error
-        );
-
-    }finally{
-
-        window.location.replace(
-            '/login'
-        );
-
-    }
-
+        }));
+    });
 }
 
+function renderQualityGauge(score){
+    $('qualityGauge').style.background=`conic-gradient(var(--green) ${score}%, #1a2d45 0)`;
+}
 
-/* =========================================================
-   NAVIGATION
-========================================================= */
+function renderNumeric(stats,cols){
+    if(!cols.length){
+        $('numericChart').parentElement.innerHTML='<div class="empty">No numeric columns available.</div>';
+        return;
+    }
 
-function setActiveNav(
-    active
-){
-
-    document
-        .querySelectorAll(
-            '.nav button'
-        )
-        .forEach(
-            button =>
-                button.classList.remove(
-                    'active'
-                )
-        );
-
-
-    if(active){
-
-        const element =
-            document.getElementById(
-                active
-            );
-
-
-        if(element){
-
-            element.classList.add(
-                'active'
-            );
+    const labels=cols.slice(0,12);
+    charts.push(new Chart($('numericChart'),{
+        type:'bar',
+        data:{
+            labels,
+            datasets:[
+                {label:'Mean',data:labels.map(c=>Number(stats[c]?.mean||0)),backgroundColor:'#2d9dff',borderRadius:4},
+                {label:'Max',data:labels.map(c=>Number(stats[c]?.max||0)),backgroundColor:'#2ccfb6',borderRadius:4}
+            ]
+        },
+        options:{
+            responsive:true,
+            maintainAspectRatio:false,
+            plugins:{
+                legend:{
+                    display:true,
+                    labels:{color:'#91a8c0',font:{size:9}}
+                }
+            },
+            scales:{x:axisOptions,y:axisOptions}
         }
-    }
-
+    }));
 }
 
-
-function goDashboard(){
-
-    setActiveNav(
-        'dashboardNav'
-    );
-
-
-    closeUpload();
-
-
-    window.scrollTo({
-        top:0,
-        behavior:'smooth'
-    });
-
-
-    closeSidebar();
-
-}
-
-
-function goAnalyses(){
-
-    setActiveNav(
-        'analysesNav'
-    );
-
-
-    closeUpload();
-
-
-    /*
-       Current backend returns
-       analyses from /api/analyses.
-
-       We keep the dashboard page and
-       show the most recent analysis.
-    */
-
-    loadAnalysis();
-
-
-    window.scrollTo({
-        top:0,
-        behavior:'smooth'
-    });
-
-
-    closeSidebar();
-
-}
-
-
-function goUpload(){
-
-    openUpload();
-
-}
-
-
-/* =========================================================
-   OPEN UPLOAD
-========================================================= */
-
-function openUpload(){
-
-    setActiveNav(
-        'uploadNav'
-    );
-
-
-    const panel =
-        document.getElementById(
-            'uploadPanel'
-        );
-
-
-    panel.classList.add(
-        'show'
-    );
-
-
-    panel.scrollIntoView({
-        behavior:'smooth',
-        block:'start'
-    });
-
-
-    closeSidebar();
-
-}
-
-
-/* =========================================================
-   CLOSE UPLOAD
-========================================================= */
-
-function closeUpload(){
-
-    const panel =
-        document.getElementById(
-            'uploadPanel'
-        );
-
-
-    panel.classList.remove(
-        'show'
-    );
-
-
-    resetUpload();
-
-
-    setActiveNav(
-        'dashboardNav'
-    );
-
-}
-
-
-/* =========================================================
-   RESET UPLOAD
-========================================================= */
-
-function resetUpload(){
-
-    selectedFile = null;
-
-
-    const input =
-        document.getElementById(
-            'fileInput'
-        );
-
-
-    const selected =
-        document.getElementById(
-            'selectedFile'
-        );
-
-
-    const btn =
-        document.getElementById(
-            'uploadBtn'
-        );
-
-
-    const status =
-        document.getElementById(
-            'uploadStatus'
-        );
-
-
-    const zone =
-        document.getElementById(
-            'dropZone'
-        );
-
-
-    if(input){
-
-        input.value = '';
-
+function renderHeatmap(corr){
+    const box=$('heatmap');
+    const labels=Object.keys(corr || {});
+
+    if(labels.length<2){
+        box.innerHTML='<div class="empty" style="min-height:205px">At least two numeric columns are required.</div>';
+        return;
     }
 
-
-    if(selected){
-
-        selected.textContent = '';
-
-        selected.style.display =
-            'none';
-
-    }
-
-
-    if(btn){
-
-        btn.disabled = true;
-
-        btn.textContent =
-            '📤 Upload & Analyze';
-
-    }
-
-
-    if(status){
-
-        status.className =
-            'upload-status';
-
-        status.textContent =
-            'Supported: CSV, XLSX, XLS';
-
-    }
-
-
-    if(zone){
-
-        zone.classList.remove(
-            'uploading'
-        );
-
-    }
-
-}
-
-
-/* =========================================================
-   FILE VALIDATION
-========================================================= */
-
-function validateFile(
-    file
-){
-
-    if(!file){
-
-        return {
-            valid:false,
-            message:'Please select a file.'
-        };
-
-    }
-
-
-    const allowed = [
-        'csv',
-        'xlsx',
-        'xls'
-    ];
-
-
-    const extension =
-        file.name
-            .split('.')
-            .pop()
-            .toLowerCase();
-
-
-    if(!allowed.includes(extension)){
-
-        return {
-            valid:false,
-            message:
-                'Only CSV, XLSX and XLS files are supported.'
-        };
-
-    }
-
-
-    /*
-       50 MB client-side limit.
-       Server can still enforce its own limit.
-    */
-
-    const maxSize =
-        50 * 1024 * 1024;
-
-
-    if(file.size > maxSize){
-
-        return {
-            valid:false,
-            message:
-                'File is too large. Maximum allowed size is 50 MB.'
-        };
-
-    }
-
-
-    return {
-        valid:true
+    const color=v=>{
+        const x=Math.max(-1,Math.min(1,Number(v)||0));
+        const hue=x>=0?205:345;
+        const light=28+Math.abs(x)*22;
+        return `hsl(${hue} 70% ${light}%)`;
     };
 
+    let html='<div class="heatmap">';
+    html+=`<div class="heat-row"><div class="heat-label"></div>${labels.map(x=>`<div class="heat-cell" style="background:#11283f">${esc(x)}</div>`).join('')}</div>`;
+
+    labels.forEach(row=>{
+        html+=`<div class="heat-row"><div class="heat-label">${esc(row)}</div>`;
+        labels.forEach(col=>{
+            const value=Number(corr[row]?.[col]);
+            html+=`<div class="heat-cell" style="background:${color(value)}">${Number.isFinite(value)?value.toFixed(2):'—'}</div>`;
+        });
+        html+='</div>';
+    });
+
+    html+='</div>';
+    box.innerHTML=html;
 }
 
-
-/* =========================================================
-   SELECT FILE
-========================================================= */
-
-function setSelectedFile(
-    file
-){
-
-    const validation =
-        validateFile(
-            file
-        );
-
-
-    if(!validation.valid){
-
-        selectedFile = null;
-
-
-        alert(
-            validation.message
-        );
-
-
-        resetUpload();
-
-
-        return;
-    }
-
-
-    selectedFile = file;
-
-
-    const selected =
-        document.getElementById(
-            'selectedFile'
-        );
-
-
-    const btn =
-        document.getElementById(
-            'uploadBtn'
-        );
-
-
-    const status =
-        document.getElementById(
-            'uploadStatus'
-        );
-
-
-    selected.textContent =
-        `📄 ${file.name} • ${(file.size / 1024 / 1024).toFixed(2)} MB`;
-
-
-    selected.style.display =
-        'block';
-
-
-    btn.disabled = false;
-
-
-    status.className =
-        'upload-status';
-
-
-    status.textContent =
-        'File selected. Click "Upload & Analyze".';
-
+/* upload */
+function openUpload(){
+    $('uploadModal').classList.add('show');
 }
+function closeUpload(){
+    $('uploadModal').classList.remove('show');
+    resetUpload();
+}
+function resetUpload(){
+    $('fileInput').value='';
+    $('selectedFile').textContent='No file selected';
+    $('uploadStatus').textContent='';
+    $('uploadBtn').disabled=true;
+    $('uploadBtn').textContent='Upload & Analyze';
+}
+function selectFile(file){
+    $('selectedFile').textContent=`${file.name} • ${(file.size/1024/1024).toFixed(2)} MB`;
+    $('uploadBtn').disabled=false;
+    $('uploadStatus').textContent='';
+}
+$('fileInput').addEventListener('change',e=>{
+    if(e.target.files[0])selectFile(e.target.files[0]);
+});
 
+const drop=$('dropzone');
+drop.addEventListener('dragover',e=>{e.preventDefault();drop.classList.add('drag')});
+drop.addEventListener('dragleave',()=>drop.classList.remove('drag'));
+drop.addEventListener('drop',e=>{
+    e.preventDefault();
+    drop.classList.remove('drag');
 
-/* =========================================================
-   UPLOAD
-========================================================= */
+    const file=e.dataTransfer.files[0];
+    if(!file)return;
 
-async function uploadNewFile(){
-
-    /*
-       IMPORTANT:
-       Use selectedFile instead of only input.files[0].
-       This makes both normal selection and drag/drop work.
-    */
-
-    if(!selectedFile){
-
-        const input =
-            document.getElementById(
-                'fileInput'
-            );
-
-
-        if(input && input.files.length){
-
-            selectedFile =
-                input.files[0];
-
-        }
-
-    }
-
-
-    if(!selectedFile){
-
-        alert(
-            'Please choose a CSV or Excel file first.'
-        );
-
+    if(!/\.(csv|xlsx|xls)$/i.test(file.name)){
+        $('uploadStatus').textContent='❌ Only CSV, XLSX and XLS files are supported.';
         return;
     }
-
-
-    const validation =
-        validateFile(
-            selectedFile
-        );
-
-
-    if(!validation.valid){
-
-        alert(
-            validation.message
-        );
-
-        return;
-    }
-
-
-    const btn =
-        document.getElementById(
-            'uploadBtn'
-        );
-
-
-    const status =
-        document.getElementById(
-            'uploadStatus'
-        );
-
-
-    const zone =
-        document.getElementById(
-            'dropZone'
-        );
-
-
-    /*
-       Prevent double upload.
-    */
-
-    btn.disabled = true;
-
-    btn.textContent =
-        '⏳ Uploading...';
-
-
-    zone.classList.add(
-        'uploading'
-    );
-
-
-    status.className =
-        'upload-status';
-
-
-    status.textContent =
-        'Uploading file... Please wait.';
-
 
     try{
-
-        const formData =
-            new FormData();
-
-
-        /*
-           IMPORTANT:
-           Backend route expects:
-           request.files.get('file')
-        */
-
-        formData.append(
-            'file',
-            selectedFile,
-            selectedFile.name
-        );
-
-
-        status.textContent =
-            'Uploading and analyzing your dataset...';
-
-
-        const response =
-            await api(
-                '/api/upload',
-                {
-                    method:'POST',
-                    body:formData
-                }
-            );
-
-
-        if(!response){
-
-            return;
-        }
-
-
-        let data = {};
-
-
-        const contentType =
-            response.headers.get(
-                'content-type'
-            ) || '';
-
-
-        if(
-            contentType.includes(
-                'application/json'
-            )
-        ){
-
-            try{
-
-                data =
-                    await response.json();
-
-            }catch(error){
-
-                console.error(
-                    'JSON parse error:',
-                    error
-                );
-
-            }
-
-        }else{
-
-            const text =
-                await response.text();
-
-            console.error(
-                'Non JSON upload response:',
-                text
-            );
-
-        }
-
-
-        if(!response.ok){
-
-            throw new Error(
-                data.error ||
-                data.message ||
-                `Upload failed (${response.status}).`
-            );
-
-        }
-
-
-        /*
-           Support all common backend formats:
-           
-           {
-               "analysis": {...}
-           }
-
-           {
-               "id": 5
-           }
-
-           {
-               "analysis_id": 5
-           }
-        */
-
-        const uploaded =
-            data.analysis ||
-            data.data ||
-            data;
-
-
-        const id =
-            uploaded.id ||
-            uploaded.analysis_id ||
-            data.id ||
-            data.analysis_id;
-
-
-        if(!id){
-
-            /*
-               Some backend versions may return
-               the complete analysis without an ID.
-            */
-
-            if(
-                uploaded &&
-                (
-                    uploaded.filename ||
-                    uploaded.file_name
-                )
-            ){
-
-                currentAnalysis =
-                    uploaded;
-
-
-                status.className =
-                    'upload-status success';
-
-
-                status.textContent =
-                    '✓ Upload completed successfully.';
-
-
-                closeUpload();
-
-
-                renderDashboard(
-                    currentAnalysis
-                );
-
-
-                window.scrollTo({
-                    top:0,
-                    behavior:'smooth'
-                });
-
-
-                return;
-            }
-
-
-            throw new Error(
-                'Upload succeeded, but the server did not return an analysis ID.'
-            );
-
-        }
-
-
-        status.className =
-            'upload-status success';
-
-
-        status.textContent =
-            '✓ Upload successful. Loading analysis...';
-
-
-        /*
-           Load the newly created analysis.
-        */
-
-        const analysis =
-            await loadAnalysisById(
-                id
-            );
-
-
-        if(!analysis){
-
-            throw new Error(
-                'File uploaded, but analysis details could not be loaded.'
-            );
-
-        }
-
-
-        /*
-           Refresh analysis list.
-        */
-
-        try{
-
-            const listResponse =
-                await api(
-                    '/api/analyses'
-                );
-
-
-            if(
-                listResponse &&
-                listResponse.ok
-            ){
-
-                const listData =
-                    await listResponse.json();
-
-
-                analyses =
-                    Array.isArray(listData)
-                        ? listData
-                        : (
-                            listData.analyses ||
-                            listData.data ||
-                            []
-                        );
-
-            }
-
-        }catch(error){
-
-            console.warn(
-                'Could not refresh analyses:',
-                error
-            );
-
-        }
-
-
-        /*
-           Hide upload panel after successful upload.
-        */
-
-        const panel =
-            document.getElementById(
-                'uploadPanel'
-            );
-
-
-        panel.classList.remove(
-            'show'
-        );
-
-
-        resetUpload();
-
-
-        setActiveNav(
-            'dashboardNav'
-        );
-
-
-        window.scrollTo({
-            top:0,
-            behavior:'smooth'
-        });
-
-
-    }catch(error){
-
-        console.error(
-            'UPLOAD ERROR:',
-            error
-        );
-
-
-        status.className =
-            'upload-status error';
-
-
-        status.textContent =
-            '❌ ' +
-            (
-                error.message ||
-                'Upload failed.'
-            );
-
-
-        btn.disabled = false;
-
-
-        btn.textContent =
-            '📤 Upload & Analyze';
-
-
-    }finally{
-
-        zone.classList.remove(
-            'uploading'
-        );
-
+        const dt=new DataTransfer();
+        dt.items.add(file);
+        $('fileInput').files=dt.files;
+        selectFile(file);
+    }catch(err){
+        $('uploadStatus').textContent='Please use Choose File.';
     }
+});
 
-}
-
-
-/* =========================================================
-   MOBILE SIDEBAR
-========================================================= */
-
-function toggleSidebar(){
-
-    document
-        .getElementById(
-            'sidebar'
-        )
-        .classList.toggle(
-            'open'
-        );
-
-}
-
-
-function closeSidebar(){
-
-    document
-        .getElementById(
-            'sidebar'
-        )
-        .classList.remove(
-            'open'
-        );
-
-}
-
-
-/* =========================================================
-   UPLOAD EVENTS
-========================================================= */
-
-function setupUpload(){
-
-    const input =
-        document.getElementById(
-            'fileInput'
-        );
-
-
-    const zone =
-        document.getElementById(
-            'dropZone'
-        );
-
-
-    if(!input || !zone){
-
+async function uploadNewFile(){
+    const file=$('fileInput').files[0];
+    if(!file){
+        $('uploadStatus').textContent='❌ Please choose a file first.';
         return;
     }
 
+    const btn=$('uploadBtn');
+    btn.disabled=true;
+    btn.textContent='Uploading...';
+    $('uploadStatus').textContent='Uploading and analyzing dataset...';
 
-    /*
-       Normal file selection
-    */
+    try{
+        const fd=new FormData();
+        fd.append('file',file);
 
-    input.addEventListener(
-        'change',
-        function(){
+        const response=await api('/api/upload',{
+            method:'POST',
+            body:fd
+        });
 
-            if(
-                this.files &&
-                this.files.length
-            ){
+        if(!response)return;
 
-                setSelectedFile(
-                    this.files[0]
-                );
+        let data={};
+        try{data=await response.json()}catch(e){}
 
+        if(!response.ok){
+            throw new Error(data.error || data.message || 'Upload failed.');
+        }
+
+        const uploaded=data.analysis || data;
+        const id=uploaded.id || uploaded.analysis_id;
+
+        if(!id){
+            throw new Error('Upload succeeded but no analysis ID was returned.');
+        }
+
+        $('uploadStatus').textContent='✓ Upload complete. Loading dashboard...';
+        closeUpload();
+
+        /* Directly load selected newly uploaded analysis. */
+        const detail=await api('/api/analyses/'+id);
+        if(!detail || !detail.ok){
+            throw new Error('Could not load the uploaded analysis.');
+        }
+
+        const detailJson=await detail.json();
+        currentAnalysis=detailJson.analysis || detailJson;
+
+        board=null;
+        try{
+            const boardResponse=await api('/api/analyses/'+id+'/dashboard');
+            if(boardResponse && boardResponse.ok){
+                const boardJson=await boardResponse.json();
+                board=boardJson.dashboard || {};
             }
+        }catch(e){}
 
-        }
-    );
+        renderDashboard();
+        toast('Dataset uploaded successfully.');
+        window.scrollTo({top:0,behavior:'smooth'});
 
-
-    /*
-       Drag enter / drag over
-    */
-
-    [
-        'dragenter',
-        'dragover'
-    ].forEach(
-        eventName => {
-
-            zone.addEventListener(
-                eventName,
-                event => {
-
-                    event.preventDefault();
-
-                    event.stopPropagation();
-
-                    zone.classList.add(
-                        'dragover'
-                    );
-
-                }
-            );
-
-        }
-    );
-
-
-    /*
-       Drag leave / drop
-    */
-
-    [
-        'dragleave',
-        'drop'
-    ].forEach(
-        eventName => {
-
-            zone.addEventListener(
-                eventName,
-                event => {
-
-                    event.preventDefault();
-
-                    event.stopPropagation();
-
-                    zone.classList.remove(
-                        'dragover'
-                    );
-
-                }
-            );
-
-        }
-    );
-
-
-    /*
-       Drop file
-    */
-
-    zone.addEventListener(
-        'drop',
-        function(event){
-
-            const files =
-                event.dataTransfer.files;
-
-
-            if(
-                !files ||
-                !files.length
-            ){
-
-                return;
-            }
-
-
-            const file =
-                files[0];
-
-
-            /*
-               Set actual input file too.
-               This is useful for browser compatibility.
-            */
-
-            try{
-
-                const dataTransfer =
-                    new DataTransfer();
-
-
-                dataTransfer.items.add(
-                    file
-                );
-
-
-                input.files =
-                    dataTransfer.files;
-
-            }catch(error){
-
-                console.warn(
-                    'Could not set input files:',
-                    error
-                );
-
-            }
-
-
-            setSelectedFile(
-                file
-            );
-
-        }
-    );
-
+    }catch(error){
+        console.error(error);
+        $('uploadStatus').textContent='❌ '+error.message;
+        btn.disabled=false;
+        btn.textContent='Upload & Analyze';
+    }
 }
 
-
-/* =========================================================
-   INITIALIZATION
-========================================================= */
-
-document.addEventListener(
-    'DOMContentLoaded',
-    async function(){
-
-        try{
-
-            setupUpload();
-
-
-            /*
-               First verify session.
-               If not logged in, loadUser()
-               redirects to /login.
-            */
-
-            const authenticated =
-                await loadUser();
-
-
-            if(!authenticated){
-
-                return;
-            }
-
-
-            /*
-               Only after authentication,
-               load analyses.
-            */
-
-            await loadAnalysis();
-
-
-        }catch(error){
-
-            console.error(
-                'Dashboard initialization error:',
-                error
-            );
-
-
-            showEmpty(
-                'Unable to initialize dashboard.'
-            );
-
-        }
-
+async function refreshDashboard(){
+    try{
+        document.body.classList.add('loading');
+        await loadLatestAnalysis();
+        toast('Dashboard refreshed.');
+    }catch(error){
+        console.error(error);
+        toast(error.message);
+    }finally{
+        document.body.classList.remove('loading');
     }
-);
+}
 
+async function logout(){
+    try{
+        await api('/api/auth/logout',{method:'POST'});
+    }finally{
+        window.location.replace('/login');
+    }
+}
+
+(async function init(){
+    try{
+        await loadUser();
+        await loadLatestAnalysis();
+    }catch(error){
+        console.error(error);
+        $('dashboardArea').innerHTML=`
+            <div class="card empty">
+                <div>
+                    <div style="font-size:34px">⚠️</div>
+                    <div class="empty-title">Unable to load dashboard</div>
+                    <div class="empty-sub">${esc(error.message)}</div>
+                    <button class="btn primary" style="margin-top:12px" onclick="refreshDashboard()">Try Again</button>
+                </div>
+            </div>
+        `;
+    }
+})();
 </script>
-
 </body>
 </html>
