@@ -592,8 +592,10 @@ def _weighted_count(frame, employee_count_col=None):
 
 def build_dashboard_data(df):
     """
-    Build the compact Excel/BI-style dashboard data shown in the reference image.
-    It automatically recognizes common HR/employee column names.
+    Build adaptive dashboard data.
+
+    HR datasets get the HR/attrition metrics from the reference-style dashboard.
+    Other datasets get generic BI metrics based only on columns actually present.
     """
     employee_count_col = _find_column(
         df, ["EmployeeCount", "Employee Count", "Headcount", "Employees"]
@@ -605,12 +607,50 @@ def build_dashboard_data(df):
     department_col = _find_column(df, ["Department", "Dept"])
     gender_col = _find_column(df, ["Gender", "Sex"])
     satisfaction_col = _find_column(
-        df, ["JobSatisfaction", "Job Satisfaction", "Satisfaction", "Job Satisfaction Rating"]
+        df,
+        ["JobSatisfaction", "Job Satisfaction", "Satisfaction", "Job Satisfaction Rating"]
     )
     education_col = _find_column(
         df, ["EducationField", "Education Field", "Education"]
     )
 
+    numeric_df = df.select_dtypes(include=[np.number])
+    numeric_columns = [str(c) for c in numeric_df.columns]
+    categorical_columns = [
+        str(c) for c in df.select_dtypes(include=["object", "category", "bool"]).columns
+    ]
+
+    total_rows = int(len(df))
+    total_columns = int(len(df.columns))
+    missing_values = int(df.isna().sum().sum())
+    duplicate_rows = int(df.duplicated().sum())
+
+    numeric_summary = []
+    for col in numeric_df.columns[:12]:
+        series = pd.to_numeric(df[col], errors="coerce").dropna()
+        if series.empty:
+            continue
+        numeric_summary.append({
+            "name": str(col),
+            "mean": clean_value(series.mean()),
+            "min": clean_value(series.min()),
+            "max": clean_value(series.max()),
+            "median": clean_value(series.median()),
+        })
+
+    categorical_summary = []
+    for col in df.select_dtypes(include=["object", "category", "bool"]).columns[:8]:
+        counts = df[col].fillna("Missing").astype(str).value_counts().head(6)
+        categorical_summary.append({
+            "column": str(col),
+            "total_unique": int(df[col].nunique(dropna=False)),
+            "categories": [
+                {"name": str(k), "count": int(v)}
+                for k, v in counts.items()
+            ]
+        })
+
+    # ---------- HR ----------
     employee_total = _weighted_count(df, employee_count_col)
 
     attrition_yes = pd.Series(False, index=df.index)
@@ -621,7 +661,10 @@ def build_dashboard_data(df):
     attrition_frame = df.loc[attrition_yes]
     attrition_count = _weighted_count(attrition_frame, employee_count_col)
     active_count = max(employee_total - attrition_count, 0)
-    attrition_rate = round((attrition_count / employee_total * 100), 2) if employee_total else 0.0
+    attrition_rate = (
+        round((attrition_count / employee_total * 100), 2)
+        if employee_total else 0.0
+    )
 
     avg_age = None
     if age_col:
@@ -629,19 +672,20 @@ def build_dashboard_data(df):
         if not ages.empty:
             avg_age = round(float(ages.mean()), 1)
 
-    # Department-wise attrition.
     department = []
     if department_col:
         for name, group in df.groupby(department_col, dropna=False):
             label = "Unknown" if pd.isna(name) else str(name)
             department.append({
                 "name": label,
-                "count": _weighted_count(group.loc[attrition_yes.loc[group.index]], employee_count_col)
+                "count": _weighted_count(
+                    group.loc[attrition_yes.loc[group.index]],
+                    employee_count_col
+                )
             })
         department.sort(key=lambda x: x["count"], reverse=True)
         department = department[:8]
 
-    # Employee count by age group.
     age_groups = ["Under 25", "25-34", "35-44", "45-54", "55+"]
     age_distribution = {k: 0 for k in age_groups}
     if age_col:
@@ -649,9 +693,10 @@ def build_dashboard_data(df):
         tmp["_age_group"] = tmp[age_col].apply(_age_group)
         for group_name, group in tmp.groupby("_age_group", dropna=False):
             if group_name in age_distribution:
-                age_distribution[group_name] = _weighted_count(group, employee_count_col)
+                age_distribution[group_name] = _weighted_count(
+                    group, employee_count_col
+                )
 
-    # Job satisfaction summary. Standard HR datasets commonly use 1..4.
     satisfaction = []
     if satisfaction_col:
         values = pd.to_numeric(df[satisfaction_col], errors="coerce")
@@ -669,71 +714,69 @@ def build_dashboard_data(df):
                     }.get(label, "Rating"),
                     "employees": _weighted_count(group, employee_count_col),
                     "attrition": _weighted_count(
-                        group.loc[attrition_yes.loc[group.index]], employee_count_col
+                        group.loc[attrition_yes.loc[group.index]],
+                        employee_count_col
                     )
                 })
         else:
-            text_values = df[satisfaction_col].astype(str).fillna("Unknown").str.strip()
+            text_values = df[satisfaction_col].fillna("Unknown").astype(str).str.strip()
             for label, group in df.groupby(text_values):
                 satisfaction.append({
                     "rating": str(label),
                     "label": "",
                     "employees": _weighted_count(group, employee_count_col),
                     "attrition": _weighted_count(
-                        group.loc[attrition_yes.loc[group.index]], employee_count_col
+                        group.loc[attrition_yes.loc[group.index]],
+                        employee_count_col
                     )
                 })
 
-    if not satisfaction:
-        # Generic numeric fallback.
-        for col, stats in list(calculate_statistics(df).items())[:6]:
-            satisfaction.append({
-                "rating": col,
-                "label": "Numeric",
-                "employees": employee_total,
-                "attrition": 0
-            })
-
-    # Education field-wise attrition.
     education = []
     if education_col:
         for name, group in df.groupby(education_col, dropna=False):
             label = "Unknown" if pd.isna(name) else str(name)
             education.append({
                 "name": label,
-                "count": _weighted_count(group.loc[attrition_yes.loc[group.index]], employee_count_col)
+                "count": _weighted_count(
+                    group.loc[attrition_yes.loc[group.index]],
+                    employee_count_col
+                )
             })
         education.sort(key=lambda x: x["count"], reverse=True)
         education = education[:8]
 
-    # Gender attrition by age group.
     gender_age = []
     if age_col and gender_col:
         temp = df.copy()
         temp["_age_group"] = temp[age_col].apply(_age_group)
         gender_values = temp[gender_col].astype(str).str.strip()
-        gender_names = [g for g in sorted(gender_values.dropna().unique(), key=str) if g]
-        # Keep the two most common genders for a compact donut display.
         gender_counts = gender_values.value_counts()
         gender_names = list(gender_counts.head(2).index)
-        if not gender_names:
-            gender_names = ["Male", "Female"]
 
         for age_name in age_groups:
             age_frame = temp[temp["_age_group"] == age_name]
             entries = {}
+
             for gender_name in gender_names:
-                gframe = age_frame[gender_values.loc[age_frame.index] == gender_name]
+                gframe = age_frame[
+                    gender_values.loc[age_frame.index] == gender_name
+                ]
                 denom = _weighted_count(gframe, employee_count_col)
                 numer = _weighted_count(
-                    gframe.loc[attrition_yes.loc[gframe.index]], employee_count_col
+                    gframe.loc[attrition_yes.loc[gframe.index]],
+                    employee_count_col
                 )
-                entries[str(gender_name)] = round((numer / denom * 100), 1) if denom else 0.0
+                entries[str(gender_name)] = (
+                    round((numer / denom * 100), 1) if denom else 0.0
+                )
 
             age_attrition = age_frame.loc[attrition_yes.loc[age_frame.index]]
             age_total = _weighted_count(age_frame, employee_count_col)
             age_attr_count = _weighted_count(age_attrition, employee_count_col)
-            total_rate = round((age_attr_count / age_total * 100), 1) if age_total else 0.0
+            total_rate = (
+                round((age_attr_count / age_total * 100), 1)
+                if age_total else 0.0
+            )
 
             gender_age.append({
                 "age_group": age_name,
@@ -741,28 +784,44 @@ def build_dashboard_data(df):
                 "overall_rate": total_rate
             })
 
-    is_hr = bool(
-        attrition_col and
-        (department_col or education_col or age_col or gender_col or satisfaction_col)
-    )
+    # Require multiple recognizable HR signals before calling a dataset HR.
+    hr_signals = sum(bool(x) for x in [
+        attrition_col,
+        age_col,
+        department_col,
+        gender_col,
+        satisfaction_col,
+        education_col,
+    ])
+    is_hr = bool(attrition_col and hr_signals >= 2)
 
     return clean_dict({
         "is_hr": is_hr,
         "columns": [str(c) for c in df.columns],
-        "employee_count": employee_total,
-        "attrition_count": attrition_count,
-        "active_employees": active_count,
-        "attrition_rate": attrition_rate,
-        "avg_age": avg_age,
-        "department_attrition": department,
-        "age_distribution": [
-            {"name": k, "count": v} for k, v in age_distribution.items()
-        ],
-        "job_satisfaction": satisfaction[:8],
-        "education_attrition": education,
-        "gender_age_attrition": gender_age,
-    })
+        "total_rows": total_rows,
+        "total_columns": total_columns,
+        "numeric_count": len(numeric_columns),
+        "categorical_count": len(categorical_columns),
+        "missing_values": missing_values,
+        "duplicate_rows": duplicate_rows,
+        "numeric_summary": numeric_summary,
+        "categorical_summary": categorical_summary,
 
+        # HR fields
+        "employee_count": employee_total if is_hr else None,
+        "attrition_count": attrition_count if is_hr else None,
+        "active_employees": active_count if is_hr else None,
+        "attrition_rate": attrition_rate if is_hr else None,
+        "avg_age": avg_age if is_hr else None,
+        "department_attrition": department if is_hr else [],
+        "age_distribution": (
+            [{"name": k, "count": v} for k, v in age_distribution.items()]
+            if is_hr else []
+        ),
+        "job_satisfaction": satisfaction if is_hr else [],
+        "education_attrition": education if is_hr else [],
+        "gender_age_attrition": gender_age if is_hr else [],
+    })
 
 @app.route("/api/analyses/<int:analysis_id>/dashboard", methods=["GET"])
 @login_required
