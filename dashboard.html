@@ -1,1401 +1,976 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Zaki AI Analytics</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-<style>
-:root{
-    --bg:#020b18;
-    --bg2:#061426;
-    --sidebar:#071426;
-    --panel:#08182b;
-    --panel2:#0b1d33;
-    --panel3:#0e2340;
-    --border:#173452;
-    --border2:#214768;
-    --text:#f2f7ff;
-    --muted:#8da2bd;
-    --blue:#3298ff;
-    --blue2:#1677dc;
-    --cyan:#1bd6ff;
-    --green:#2bd598;
-    --yellow:#f6c453;
-    --red:#ff667f;
-    --shadow:0 18px 45px rgba(0,0,0,.26);
-}
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
 
-*{box-sizing:border-box}
-html,body{margin:0;min-height:100%;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-body{
-    background:
-        radial-gradient(circle at 78% 3%,rgba(40,144,255,.07),transparent 26%),
-        linear-gradient(180deg,#020a14 0%,#061326 55%,#04101e 100%);
-    color:var(--text);
-}
-button,input{font:inherit}
-button{cursor:pointer}
-a{text-decoration:none;color:inherit}
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
 
-.app{min-height:100vh;display:flex}
+        /* HEADER */
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
 
-/* SIDEBAR */
-.sidebar{
-    width:228px;
-    position:fixed;
-    left:0;top:0;bottom:0;
-    background:linear-gradient(180deg,#071427 0%,#061222 100%);
-    border-right:1px solid #17304a;
-    display:flex;
-    flex-direction:column;
-    z-index:30;
-}
-.brand{
-    min-height:72px;
-    padding:0 20px;
-    display:flex;
-    align-items:center;
-    border-bottom:1px solid #152c45;
-}
-.brand-mark{
-    width:30px;height:30px;
-    display:grid;place-items:center;
-    margin-right:8px;
-    font-size:21px;
-}
-.brand-text{
-    font-size:18px;
-    font-weight:800;
-    letter-spacing:-.5px;
-    color:#a88fff;
-}
-.nav{
-    padding:17px 10px;
-}
-.nav-title{
-    padding:0 13px 8px;
-    text-transform:uppercase;
-    font-size:9px;
-    letter-spacing:1.2px;
-    color:#647b95;
-}
-.nav-btn{
-    width:100%;
-    border:0;
-    background:transparent;
-    color:#93a8c0;
-    text-align:left;
-    padding:12px 14px;
-    border-radius:10px;
-    margin-bottom:5px;
-    display:flex;
-    align-items:center;
-    gap:10px;
-    font-size:13px;
-    font-weight:650;
-    transition:.15s ease;
-}
-.nav-btn:hover{background:#10233d;color:#e8f1ff}
-.nav-btn.active{
-    background:#132b4b;
-    color:#ffffff;
-    box-shadow:inset 3px 0 0 #20b6ff;
-}
-.nav-icon{width:19px;text-align:center;font-size:15px}
-.sidebar-spacer{flex:1}
-.user-card{
-    margin:10px;
-    padding:11px;
-    border:1px solid #1b3b5d;
-    border-radius:11px;
-    background:#081a2e;
-}
-.user-row{display:flex;align-items:center;gap:9px}
-.avatar{
-    width:34px;height:34px;border-radius:50%;
-    background:linear-gradient(135deg,#314f88,#162a4b);
-    border:1px solid #31517c;
-    display:grid;place-items:center;
-    color:#cfe3ff;font-weight:800;font-size:12px;
-}
-.user-name{font-size:12px;font-weight:800}
-.user-email{font-size:10px;color:#788fa9;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:145px}
-.logout{
-    width:100%;
-    margin-top:10px;
-    padding:9px;
-    border-radius:9px;
-    border:1px solid #214463;
-    background:#0a1e33;
-    color:#ff7b9b;
-    font-weight:700;
-    font-size:12px;
-}
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
 
-/* MAIN */
-.main{
-    margin-left:228px;
-    min-height:100vh;
-    width:calc(100% - 228px);
-}
-.topbar{
-    height:72px;
-    padding:0 28px;
-    border-bottom:1px solid #10273f;
-    background:rgba(4,14,27,.72);
-    backdrop-filter:blur(8px);
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-}
-.page-title{
-    font-size:18px;
-    font-weight:800;
-}
-.page-subtitle{
-    color:var(--muted);
-    font-size:10px;
-    margin-top:3px;
-}
-.top-actions{display:flex;gap:8px;align-items:center}
-.btn{
-    border:1px solid #214663;
-    background:#0b1f35;
-    color:#d7e6f9;
-    padding:9px 13px;
-    border-radius:8px;
-    font-size:11px;
-    font-weight:750;
-}
-.btn:hover{filter:brightness(1.08)}
-.btn.primary{
-    border-color:#2386df;
-    color:white;
-    background:linear-gradient(135deg,#1975da,#329cff);
-}
-.content{
-    padding:20px 28px 35px;
-}
+        .header-title {
+            font-size: 32px;
+            font-weight: 800;
+            letter-spacing: -1px;
+        }
 
-/* SUMMARY */
-.summary-grid{
-    display:grid;
-    grid-template-columns:repeat(5,minmax(0,1fr));
-    gap:10px;
-}
-.summary-card{
-    background:linear-gradient(180deg,#0b1b30,#08172a);
-    border:1px solid #173452;
-    border-radius:11px;
-    padding:14px;
-    min-height:105px;
-    box-shadow:var(--shadow);
-}
-.summary-head{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    color:#91a5bf;
-    font-size:10px;
-    font-weight:700;
-}
-.summary-icon{
-    width:28px;height:28px;
-    border-radius:8px;
-    display:grid;place-items:center;
-    background:#112e50;
-    color:#54b5ff;
-    font-size:13px;
-}
-.summary-value{
-    margin-top:9px;
-    font-size:24px;
-    line-height:1;
-    font-weight:850;
-}
-.summary-sub{
-    margin-top:7px;
-    color:#6e879f;
-    font-size:9px;
-}
+        .header-subtitle {
+            font-size: 13px;
+            opacity: 0.9;
+            margin-top: 5px;
+        }
 
-/* GRID */
-.grid{
-    display:grid;
-    grid-template-columns:1.45fr .95fr;
-    gap:10px;
-    margin-top:10px;
-}
-.grid-wide{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:10px;
-    margin-top:10px;
-}
-.card{
-    background:linear-gradient(180deg,rgba(9,26,46,.96),rgba(7,20,35,.96));
-    border:1px solid #173653;
-    border-radius:11px;
-    box-shadow:var(--shadow);
-    padding:14px;
-    min-width:0;
-}
-.card-head{
-    display:flex;
-    justify-content:space-between;
-    align-items:flex-start;
-    margin-bottom:11px;
-}
-.card-title{
-    font-size:12px;
-    font-weight:800;
-}
-.card-sub{
-    color:#7187a1;
-    font-size:9px;
-    margin-top:3px;
-}
-.chart-box{
-    height:250px;
-    position:relative;
-}
-.chart-box.small{height:225px}
-.chart-box.tiny{height:185px}
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
 
-/* QUALITY */
-.quality-wrap{
-    min-height:225px;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    gap:28px;
-}
-.gauge{
-    width:154px;height:154px;border-radius:50%;
-    position:relative;
-    display:grid;
-    place-items:center;
-    background:conic-gradient(var(--green) 0%,#1a2d45 0);
-}
-.gauge::after{
-    content:"";
-    width:110px;height:110px;
-    position:absolute;
-    border-radius:50%;
-    background:#09192b;
-}
-.gauge-center{
-    position:relative;
-    z-index:1;
-    text-align:center;
-}
-.gauge-score{
-    font-size:28px;
-    font-weight:850;
-}
-.gauge-caption{
-    color:#738da8;
-    font-size:9px;
-    margin-top:3px;
-}
-.quality-legend{
-    display:grid;
-    gap:10px;
-    font-size:10px;
-    color:#9caec3;
-}
-.quality-line{
-    display:flex;align-items:center;gap:7px
-}
-.quality-dot{
-    width:8px;height:8px;border-radius:50%
-}
+        .btn {
+            background: white;
+            color: #667eea;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
 
-/* HEATMAP */
-.heatmap{
-    display:grid;
-    gap:3px;
-    overflow:auto;
-    max-height:260px;
-}
-.heat-row{display:flex;gap:3px}
-.heat-cell{
-    width:62px;min-width:62px;height:36px;
-    border-radius:4px;
-    display:grid;
-    place-items:center;
-    font-size:9px;
-    color:white;
-}
-.heat-label{
-    width:100px;min-width:100px;height:36px;
-    display:flex;
-    align-items:center;
-    padding-right:8px;
-    color:#7e96af;
-    font-size:9px;
-    overflow:hidden;
-}
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        }
 
-/* INSIGHTS */
-.insights{display:grid;gap:7px}
-.insight{
-    border:1px solid #173452;
-    border-radius:8px;
-    background:#0a1930;
-    padding:9px 10px;
-    color:#afbdd0;
-    line-height:1.45;
-    font-size:10px;
-}
-.pills{display:flex;flex-wrap:wrap;gap:6px}
-.pill{
-    border:1px solid #1a3b5b;
-    background:#0a1f36;
-    color:#a1b9d1;
-    padding:6px 8px;
-    border-radius:16px;
-    font-size:9px;
-}
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
 
-/* UPLOAD */
-.modal{
-    display:none;
-    position:fixed;
-    inset:0;
-    z-index:80;
-    background:rgba(2,9,18,.73);
-    align-items:center;
-    justify-content:center;
-    padding:20px;
-}
-.modal.show{display:flex}
-.modal-card{
-    width:min(520px,95vw);
-    border:1px solid #20486b;
-    border-radius:13px;
-    background:linear-gradient(180deg,#0c2038,#08172a);
-    padding:17px;
-    box-shadow:0 28px 80px rgba(0,0,0,.42);
-}
-.modal-title{
-    font-weight:800;font-size:16px;
-}
-.modal-sub{font-size:10px;color:#768fa8;margin-top:4px}
-.dropzone{
-    margin-top:14px;
-    padding:32px 15px;
-    text-align:center;
-    border:1.5px dashed #2d5478;
-    border-radius:10px;
-    background:#08182b;
-}
-.dropzone.drag{
-    border-color:#20c5ff;
-    background:#0c2037;
-}
-.drop-icon{font-size:30px}
-.drop-title{font-size:12px;font-weight:800;margin-top:7px}
-.drop-sub{font-size:9px;color:#7089a1;margin-top:4px}
-.file-input{display:none}
-.selected{
-    min-height:15px;
-    margin-top:10px;
-    font-size:9px;
-    color:#9fb3c9;
-}
-.modal-actions{
-    margin-top:12px;
-    display:flex;
-    justify-content:flex-end;
-    gap:7px;
-}
-.status{
-    min-height:15px;
-    margin-top:7px;
-    font-size:10px;
-    color:#8ba2bb;
-}
+        .btn-primary:hover {
+            background: #5568d3;
+        }
 
-.empty{
-    min-height:280px;
-    display:grid;
-    place-items:center;
-    text-align:center;
-    color:#7d93aa;
-    padding:40px;
-}
-.empty-title{font-size:17px;color:#fff;font-weight:800}
-.empty-sub{font-size:11px;margin-top:7px}
+        /* FILTERS */
+        .filters {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
 
-.toast{
-    display:none;
-    position:fixed;
-    z-index:100;
-    right:20px;bottom:20px;
-    background:#0d2944;
-    border:1px solid #2b5a7e;
-    color:#d9ebff;
-    border-radius:8px;
-    padding:10px 12px;
-    font-size:10px;
-    box-shadow:var(--shadow);
-}
-.loading{opacity:.55;pointer-events:none}
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
 
-/* RESPONSIVE */
-@media(max-width:1180px){
-    .summary-grid{grid-template-columns:repeat(3,1fr)}
-    .grid,.grid-wide{grid-template-columns:1fr}
-}
-@media(max-width:780px){
-    .sidebar{width:68px}
-    .brand-text,.nav-title,.nav-label,.user-info,.logout{display:none}
-    .brand{justify-content:center;padding:0}
-    .nav-btn{justify-content:center;padding:12px 7px}
-    .user-card{padding:7px}
-    .main{margin-left:68px;width:calc(100% - 68px)}
-    .topbar{padding:0 14px}
-    .content{padding:14px}
-    .summary-grid{grid-template-columns:repeat(2,1fr)}
-}
-</style>
+        .filter-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: #333;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .filter-input, select {
+            padding: 10px 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 12px;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+
+        .filter-input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        /* STATS GRID */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            border-left: 5px solid #667eea;
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+        }
+
+        .stat-card.blue { border-left-color: #667eea; }
+        .stat-card.green { border-left-color: #48bb78; }
+        .stat-card.orange { border-left-color: #f6ad55; }
+        .stat-card.red { border-left-color: #f56565; }
+
+        .stat-icon {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 800;
+            color: #222;
+            margin-top: 8px;
+        }
+
+        .stat-change {
+            font-size: 11px;
+            margin-top: 8px;
+            color: #48bb78;
+        }
+
+        .stat-change.negative {
+            color: #f56565;
+        }
+
+        /* CHARTS GRID */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .chart-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+
+        .chart-card.full {
+            grid-column: 1 / -1;
+        }
+
+        .chart-header {
+            margin-bottom: 20px;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 15px;
+        }
+
+        .chart-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #222;
+        }
+
+        .chart-subtitle {
+            font-size: 11px;
+            color: #999;
+            margin-top: 4px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-bottom: 10px;
+        }
+
+        .chart-container.small {
+            height: 250px;
+        }
+
+        /* TABLE */
+        .data-table {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+        }
+
+        .table-header {
+            padding: 25px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .table-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #222;
+        }
+
+        .table-subtitle {
+            font-size: 11px;
+            color: #999;
+            margin-top: 4px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: #f8f9fa;
+        }
+
+        th {
+            padding: 15px 20px;
+            text-align: left;
+            font-size: 11px;
+            font-weight: 700;
+            color: #555;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        td {
+            padding: 15px 20px;
+            font-size: 12px;
+            color: #333;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        /* INSIGHTS */
+        .insights-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .insight-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .insight-icon {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .insight-title {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+            opacity: 0.9;
+        }
+
+        .insight-text {
+            font-size: 13px;
+            line-height: 1.5;
+            opacity: 0.95;
+        }
+
+        /* MODAL */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .modal-subtitle {
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 20px;
+        }
+
+        .dropzone {
+            border: 2px dashed #667eea;
+            border-radius: 10px;
+            padding: 40px 20px;
+            text-align: center;
+            background: #f8f9fa;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 15px;
+        }
+
+        .dropzone:hover, .dropzone.drag {
+            border-color: #764ba2;
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        .drop-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
+        .drop-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #222;
+            margin-bottom: 5px;
+        }
+
+        .drop-subtitle {
+            font-size: 11px;
+            color: #999;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .selected-file {
+            min-height: 20px;
+            font-size: 11px;
+            color: #666;
+            margin-top: 10px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .status-message {
+            min-height: 20px;
+            font-size: 11px;
+            margin-top: 10px;
+            color: #999;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+
+        .empty-icon {
+            font-size: 60px;
+            margin-bottom: 20px;
+        }
+
+        .empty-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #222;
+            margin-bottom: 10px;
+        }
+
+        .empty-text {
+            font-size: 12px;
+            color: #999;
+            line-height: 1.6;
+            max-width: 300px;
+            margin: 0 auto 20px;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #48bb78;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            display: none;
+            z-index: 2000;
+        }
+
+        .toast.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .header-top {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .chart-container {
+                height: 250px;
+            }
+
+            .modal-card {
+                padding: 20px;
+            }
+        }
+    </style>
 </head>
 
 <body>
-<div class="app">
-
-<aside class="sidebar">
-    <div class="brand">
-        <div class="brand-mark">📊</div>
-        <div class="brand-text">Zaki AI Analytics</div>
-    </div>
-
-    <nav class="nav">
-        <div class="nav-title">Workspace</div>
-        <button class="nav-btn active" onclick="goTop()">
-            <span class="nav-icon">🏠</span><span class="nav-label">Dashboard</span>
-        </button>
-        <button class="nav-btn" onclick="refreshDashboard()">
-            <span class="nav-icon">📁</span><span class="nav-label">My Analyses</span>
-        </button>
-        <button class="nav-btn" onclick="openUpload()">
-            <span class="nav-icon">📤</span><span class="nav-label">Upload Data</span>
-        </button>
-    </nav>
-
-    <div class="sidebar-spacer"></div>
-
-    <div class="user-card">
-        <div class="user-row">
-            <div class="avatar" id="avatar">U</div>
-            <div class="user-info">
-                <div class="user-name" id="userName">Loading...</div>
-                <div class="user-email" id="userEmail"></div>
-            </div>
-        </div>
-        <button class="logout" onclick="logout()">🚪 Logout</button>
-    </div>
-</aside>
-
-<main class="main">
-    <header class="topbar">
-        <div>
-            <div class="page-title">Analytics Dashboard</div>
-            <div class="page-subtitle" id="datasetTitle">Loading your latest analysis...</div>
-        </div>
-        <div class="top-actions">
-            <button class="btn" onclick="refreshDashboard()">↻ Refresh</button>
-            <button class="btn primary" onclick="openUpload()">📤 Upload Data</button>
-        </div>
-    </header>
-
-    <div class="content">
-        <section id="dashboardArea">
-            <div class="card empty">
+    <div class="container">
+        <!-- HEADER -->
+        <div class="header">
+            <div class="header-top">
                 <div>
-                    <div class="empty-title">Loading dashboard...</div>
-                    <div class="empty-sub">Fetching your latest analysis.</div>
+                    <div class="header-title">📊 Analytics Dashboard</div>
+                    <div class="header-subtitle" id="datasetInfo">Loading your analysis...</div>
+                </div>
+                <div class="header-actions">
+                    <button class="btn" onclick="refreshDashboard()">↻ Refresh</button>
+                    <button class="btn btn-primary" onclick="openUpload()">📤 Upload Data</button>
                 </div>
             </div>
-        </section>
-    </div>
-</main>
-</div>
-
-<!-- Upload Modal -->
-<div class="modal" id="uploadModal">
-    <div class="modal-card">
-        <div class="modal-title">Upload New Dataset</div>
-        <div class="modal-sub">CSV, XLSX or XLS • Maximum 100MB</div>
-
-        <div class="dropzone" id="dropzone">
-            <div class="drop-icon">☁️</div>
-            <div class="drop-title">Drag & drop your file here</div>
-            <div class="drop-sub">or choose a file from your computer</div>
-            <label class="btn" style="display:inline-block;margin-top:12px" for="fileInput">Choose File</label>
-            <input id="fileInput" class="file-input" type="file" accept=".csv,.xlsx,.xls">
-            <div class="selected" id="selectedFile">No file selected</div>
         </div>
 
-        <div class="modal-actions">
-            <button class="btn" onclick="closeUpload()">Cancel</button>
-            <button class="btn primary" id="uploadBtn" onclick="uploadNewFile()" disabled>Upload & Analyze</button>
-        </div>
-        <div class="status" id="uploadStatus"></div>
-    </div>
-</div>
-
-<div class="toast" id="toast"></div>
-
-<script>
-let currentAnalysis = null;
-let board = null;
-let charts = [];
-
-const $ = id => document.getElementById(id);
-
-async function api(url, options={}) {
-    const opts = {...options, credentials:'include'};
-    opts.headers = {...(options.headers || {}), Accept:'application/json'};
-    const response = await fetch(url, opts);
-
-    if(response.status === 401){
-        window.location.replace('/login');
-        return null;
-    }
-    return response;
-}
-
-function esc(v){
-    return String(v ?? '').replace(/[&<>"']/g,c=>({
-        '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'
-    }[c]));
-}
-
-function number(v,digits=0){
-    const n=Number(v);
-    return Number.isFinite(n)
-        ? n.toLocaleString(undefined,{maximumFractionDigits:digits})
-        : '—';
-}
-
-function toast(msg){
-    const t=$('toast');
-    t.textContent=msg;
-    t.style.display='block';
-    clearTimeout(window.__toast);
-    window.__toast=setTimeout(()=>t.style.display='none',3000);
-}
-
-function destroyCharts(){
-    charts.forEach(c=>{try{c.destroy()}catch(e){}});
-    charts=[];
-}
-
-function goTop(){
-    window.scrollTo({top:0,behavior:'smooth'});
-}
-
-async function loadUser(){
-    const response=await api('/api/auth/me');
-    if(!response || !response.ok)return;
-    const user=await response.json();
-    const name=[user.first_name,user.last_name].filter(Boolean).join(' ') || user.username || 'User';
-
-    $('userName').textContent=name;
-    $('userEmail').textContent=user.email || '';
-    $('avatar').textContent=name.charAt(0).toUpperCase();
-}
-
-async function loadLatestAnalysis(){
-    const listResponse=await api('/api/analyses?page=1');
-
-    if(!listResponse || !listResponse.ok){
-        throw new Error('Could not load analyses.');
-    }
-
-    const list=await listResponse.json();
-    const analyses=list.analyses || [];
-
-    if(!analyses.length){
-        currentAnalysis=null;
-        board=null;
-        renderEmpty();
-        return;
-    }
-
-    const id=analyses[0].id || analyses[0].analysis_id;
-
-    const detailResponse=await api('/api/analyses/'+id);
-    if(!detailResponse || !detailResponse.ok){
-        throw new Error('Could not load analysis details.');
-    }
-
-    const detail=await detailResponse.json();
-    currentAnalysis=detail.analysis || detail;
-
-    /* Preferred HR/BI endpoint from the upgraded backend. */
-    try{
-        const boardResponse=await api('/api/analyses/'+id+'/dashboard');
-        if(boardResponse && boardResponse.ok){
-            const result=await boardResponse.json();
-            board=result.dashboard || {};
-        }else{
-            board=null;
-        }
-    }catch(e){
-        board=null;
-    }
-
-    renderDashboard();
-}
-
-function renderEmpty(){
-    destroyCharts();
-    $('datasetTitle').textContent='No analysis found. Upload a CSV or Excel file first.';
-
-    $('dashboardArea').innerHTML=`
-        <div class="card empty">
-            <div>
-                <div style="font-size:36px">📊</div>
-                <div class="empty-title">No analysis found</div>
-                <div class="empty-sub">Upload a CSV or Excel dataset to build your dashboard.</div>
-                <button class="btn primary" style="margin-top:13px" onclick="openUpload()">📤 Upload Data</button>
+        <!-- FILTERS -->
+        <div class="filters" id="filterSection" style="display: none;">
+            <div class="filter-group">
+                <label class="filter-label">Search Column</label>
+                <input type="text" class="filter-input" id="searchFilter" placeholder="Type to filter...">
+            </div>
+            <div class="filter-group">
+                <label class="filter-label">Min Value</label>
+                <input type="number" class="filter-input" id="minFilter" placeholder="Minimum">
+            </div>
+            <div class="filter-group">
+                <label class="filter-label">Max Value</label>
+                <input type="number" class="filter-input" id="maxFilter" placeholder="Maximum">
+            </div>
+            <div class="filter-group">
+                <label class="filter-label">Sort By</label>
+                <select id="sortFilter">
+                    <option value="">Default</option>
+                    <option value="asc">Ascending</option>
+                    <option value="desc">Descending</option>
+                </select>
             </div>
         </div>
-    `;
-}
 
-function renderDashboard(){
-    destroyCharts();
+        <!-- STATS -->
+        <div class="stats-grid" id="statsGrid"></div>
 
-    const a=currentAnalysis || {};
-    const d=board || {};
+        <!-- CHARTS -->
+        <div id="dashboardContent"></div>
 
-    const stats=a.statistics || {};
-    const types=a.data_types || {};
-    const anomalies=a.anomalies || {};
-    const correlations=a.correlations || {};
-    const insights=Array.isArray(a.insights) ? a.insights : [];
+        <!-- MODAL -->
+        <div class="modal" id="uploadModal">
+            <div class="modal-card">
+                <div class="modal-title">📤 Upload Dataset</div>
+                <div class="modal-subtitle">Upload CSV, XLSX or XLS files (Max 100MB)</div>
 
-    const numericColumns=Object.keys(stats);
-    const allColumns=a.column_names || Object.keys(types);
-    const quality=Math.max(0,Math.min(100,Number(a.quality_score ?? 0)));
-    const anomalyCount=Object.values(anomalies)
-        .reduce((s,x)=>s+Number(x?.count || 0),0);
+                <div class="dropzone" id="dropzone">
+                    <div class="drop-icon">☁️</div>
+                    <div class="drop-title">Drag & drop your file here</div>
+                    <div class="drop-subtitle">or click to browse</div>
+                    <input type="file" id="fileInput" class="file-input" accept=".csv,.xlsx,.xls">
+                    <div class="selected-file" id="selectedFile"></div>
+                </div>
 
-    $('datasetTitle').textContent=
-        `${a.filename || 'Dataset'} • ${number(a.rows,0)} rows • ${number(a.columns,0)} columns`;
+                <div class="modal-actions">
+                    <button class="btn" onclick="closeUpload()">Cancel</button>
+                    <button class="btn btn-primary" id="uploadBtn" onclick="uploadFile()" disabled>Upload & Analyze</button>
+                </div>
+                <div class="status-message" id="uploadStatus"></div>
+            </div>
+        </div>
+    </div>
 
-    if(d.is_hr){
-        renderHRDashboard(a,d,stats,types,quality,insights,anomalyCount,numericColumns,allColumns);
-        return;
-    }
+    <div class="toast" id="toast"></div>
 
-    renderGenericDashboard(
-        a,d,stats,types,quality,insights,anomalyCount,numericColumns,allColumns,correlations,anomalies
-    );
-}
+    <script>
+        let currentAnalysis = null;
+        let charts = [];
 
-function renderHRDashboard(a,d,stats,types,quality,insights,anomalyCount,numericColumns,allColumns){
-    const employees=Number(d.employee_count || a.rows || 0);
-    const attrition=Number(d.attrition_count || 0);
-    const attritionRate=Number(d.attrition_rate || 0);
-    const active=Number(d.active_employees || 0);
-    const categoricalCount=Number(d.categorical_count || 0);
+        const $ = id => document.getElementById(id);
 
-    $('dashboardArea').innerHTML=`
-        <section class="summary-grid">
-            <div class="summary-card"><div class="summary-head"><span>Employee Count</span><span class="summary-icon">👥</span></div><div class="summary-value">${number(employees)}</div><div class="summary-sub">Total records / headcount</div></div>
-            <div class="summary-card"><div class="summary-head"><span>Attrition Count</span><span class="summary-icon">↘</span></div><div class="summary-value">${number(attrition)}</div><div class="summary-sub">Detected attrition</div></div>
-            <div class="summary-card"><div class="summary-head"><span>Attrition Rate</span><span class="summary-icon">%</span></div><div class="summary-value">${number(attritionRate,2)}%</div><div class="summary-sub">Attrition ÷ employee count</div></div>
-            <div class="summary-card"><div class="summary-head"><span>Active Employees</span><span class="summary-icon">✓</span></div><div class="summary-value">${number(active)}</div><div class="summary-sub">Estimated active count</div></div>
-            <div class="summary-card"><div class="summary-head"><span>Data Quality</span><span class="summary-icon">◎</span></div><div class="summary-value">${number(quality,1)}%</div><div class="summary-sub">${numericColumns.length} numeric • ${categoricalCount} categorical</div></div>
-        </section>
+        // API
+        async function api(url, options = {}) {
+            const response = await fetch(url, {
+                ...options,
+                credentials: 'include'
+            });
 
-        <section class="grid">
-            <div class="card"><div class="card-head"><div><div class="card-title">Department-wise Attrition</div><div class="card-sub">Distribution of attrition across departments</div></div></div><div class="chart-box"><canvas id="departmentChart"></canvas></div></div>
-            <div class="card"><div class="card-head"><div><div class="card-title">Employees by Age Group</div><div class="card-sub">Headcount distribution by age band</div></div></div><div class="chart-box"><canvas id="ageChart"></canvas></div></div>
-        </section>
+            if (response.status === 401) {
+                window.location.replace('/login');
+                return null;
+            }
 
-        <section class="grid-wide">
-            <div class="card"><div class="card-head"><div><div class="card-title">Job Satisfaction Rating</div><div class="card-sub">Employee count and attrition rate by rating</div></div></div><div id="satisfactionTable"></div></div>
-            <div class="card"><div class="card-head"><div><div class="card-title">Education Field-wise Attrition</div><div class="card-sub">Category-wise attrition summary</div></div></div><div class="chart-box small"><canvas id="educationChart"></canvas></div></div>
-        </section>
-
-        <section class="grid-wide">
-            <div class="card"><div class="card-head"><div><div class="card-title">Attrition by Gender & Age Group</div><div class="card-sub">Compact demographic comparison</div></div></div><div id="genderAge"></div></div>
-            <div class="card"><div class="card-head"><div><div class="card-title">Data Quality</div><div class="card-sub">Completeness and duplicate checks</div></div></div><div class="quality-wrap"><div class="gauge" id="qualityGauge"><div class="gauge-center"><div class="gauge-score">${number(quality,1)}%</div><div class="gauge-caption">QUALITY</div></div></div><div class="quality-legend"><div class="quality-line"><span class="quality-dot" style="background:var(--green)"></span>Good data</div><div class="quality-line"><span class="quality-dot" style="background:var(--yellow)"></span>Review needed</div><div class="quality-line"><span class="quality-dot" style="background:var(--red)"></span>Needs attention</div></div></div></div>
-        </section>
-
-        <section class="grid-wide">
-            <div class="card"><div class="card-head"><div><div class="card-title">Numeric Overview</div><div class="card-sub">Mean and range of numeric fields</div></div></div><div class="chart-box small"><canvas id="numericChart"></canvas></div></div>
-            <div class="card"><div class="card-head"><div><div class="card-title">Correlation Heatmap</div><div class="card-sub">Pearson correlation between numeric columns</div></div></div><div id="heatmap"></div></div>
-        </section>
-
-        <section class="grid-wide">
-            <div class="card"><div class="card-head"><div><div class="card-title">AI Insights</div><div class="card-sub">Automatically generated from the uploaded dataset</div></div></div><div class="insights">${(insights.length?insights:['No AI insights available.']).map(x=>`<div class="insight">✦ ${esc(x)}</div>`).join('')}</div></div>
-            <div class="card"><div class="card-head"><div><div class="card-title">Dataset Columns</div><div class="card-sub">${allColumns.length} fields detected</div></div></div><div class="pills">${allColumns.map(c=>`<span class="pill">${esc(c)}</span>`).join('')}</div></div>
-        </section>
-    `;
-
-    renderDepartment(d.department_attrition || [],stats);
-    renderAge(d.age_distribution || []);
-    renderSatisfaction(d.job_satisfaction || [],stats);
-    renderEducation(d.education_attrition || [],d.department_attrition || [],numericColumns);
-    renderGenderAge(d.gender_age_attrition || []);
-    renderQualityGauge(quality);
-    renderNumeric(stats,numericColumns);
-    renderHeatmap(a.correlations || {});
-}
-
-function renderGenericDashboard(a,d,stats,types,quality,insights,anomalyCount,numericColumns,allColumns,correlations,anomalies){
-    const rows=Number(d.total_rows ?? a.rows ?? 0);
-    const cols=Number(d.total_columns ?? a.columns ?? 0);
-    const numericCount=Number(d.numeric_count ?? numericColumns.length);
-    const categoricalCount=Number(d.categorical_count ?? Object.values(types).filter(v=>/object|category|string|bool/i.test(String(v))).length);
-    const missing=Number(d.missing_values ?? 0);
-    const duplicates=Number(d.duplicate_rows ?? 0);
-
-    $('dashboardArea').innerHTML=`
-        <section class="summary-grid">
-            <div class="summary-card"><div class="summary-head"><span>Total Rows</span><span class="summary-icon">▤</span></div><div class="summary-value">${number(rows)}</div><div class="summary-sub">Records analyzed</div></div>
-            <div class="summary-card"><div class="summary-head"><span>Total Columns</span><span class="summary-icon">▦</span></div><div class="summary-value">${number(cols)}</div><div class="summary-sub">${numericCount} numeric fields</div></div>
-            <div class="summary-card"><div class="summary-head"><span>Numeric Columns</span><span class="summary-icon">123</span></div><div class="summary-value">${number(numericCount)}</div><div class="summary-sub">Quantitative fields detected</div></div>
-            <div class="summary-card"><div class="summary-head"><span>Categorical Columns</span><span class="summary-icon">Aa</span></div><div class="summary-value">${number(categoricalCount)}</div><div class="summary-sub">Text / category fields</div></div>
-            <div class="summary-card"><div class="summary-head"><span>Data Quality</span><span class="summary-icon">◎</span></div><div class="summary-value">${number(quality,1)}%</div><div class="summary-sub">${number(missing)} missing • ${number(duplicates)} duplicates</div></div>
-        </section>
-
-        <section class="grid">
-            <div class="card"><div class="card-head"><div><div class="card-title">Numeric Column Overview</div><div class="card-sub">Mean values across detected numeric fields</div></div></div><div class="chart-box"><canvas id="departmentChart"></canvas></div></div>
-            <div class="card"><div class="card-head"><div><div class="card-title">Categorical Distribution</div><div class="card-sub">Most common values from the dataset</div></div></div><div class="chart-box"><canvas id="ageChart"></canvas></div></div>
-        </section>
-
-        <section class="grid-wide">
-            <div class="card"><div class="card-head"><div><div class="card-title">Statistical Summary</div><div class="card-sub">Mean, median and standard deviation</div></div></div><div id="satisfactionTable"></div></div>
-            <div class="card"><div class="card-head"><div><div class="card-title">Category Breakdown</div><div class="card-sub">Top values in the first available categorical field</div></div></div><div class="chart-box small"><canvas id="educationChart"></canvas></div></div>
-        </section>
-
-        <section class="grid-wide">
-            <div class="card"><div class="card-head"><div><div class="card-title">Anomaly Detection</div><div class="card-sub">IQR-based outliers in numeric fields</div></div></div><div class="chart-box small"><canvas id="genderAge"></canvas></div></div>
-            <div class="card"><div class="card-head"><div><div class="card-title">Data Quality</div><div class="card-sub">Completeness and duplicate checks</div></div></div><div class="quality-wrap"><div class="gauge" id="qualityGauge"><div class="gauge-center"><div class="gauge-score">${number(quality,1)}%</div><div class="gauge-caption">QUALITY</div></div></div><div class="quality-legend"><div class="quality-line"><span class="quality-dot" style="background:var(--green)"></span>Good data</div><div class="quality-line"><span class="quality-dot" style="background:var(--yellow)"></span>Review needed</div><div class="quality-line"><span class="quality-dot" style="background:var(--red)"></span>Needs attention</div></div></div></div>
-        </section>
-
-        <section class="grid-wide">
-            <div class="card"><div class="card-head"><div><div class="card-title">Correlation Heatmap</div><div class="card-sub">Relationship between numeric fields</div></div></div><div id="heatmap"></div></div>
-            <div class="card"><div class="card-head"><div><div class="card-title">AI Insights</div><div class="card-sub">Automatically generated from the uploaded dataset</div></div></div><div class="insights">${(insights.length?insights:['No AI insights available.']).map(x=>`<div class="insight">✦ ${esc(x)}</div>`).join('')}</div></div>
-        </section>
-
-        <section class="card" style="margin-top:10px"><div class="card-head"><div><div class="card-title">Dataset Columns</div><div class="card-sub">${allColumns.length} fields detected</div></div></div><div class="pills">${allColumns.map(c=>`<span class="pill">${esc(c)}</span>`).join('')}</div></section>
-    `;
-
-    renderGenericNumeric(d.numeric_summary || [],stats);
-    renderGenericCategories(d.categorical_summary || []);
-    renderGenericTable(d.numeric_summary || []);
-    renderGenericCategoryChart(d.categorical_summary || []);
-    renderGenericAnomalies(anomalies);
-    renderQualityGauge(quality);
-    renderHeatmap(correlations);
-}
-
-function renderGenericNumeric(items,stats){
-    let labels=items.map(x=>x.name);
-    let means=items.map(x=>Number(x.mean||0));
-
-    if(!labels.length){
-        labels=Object.keys(stats).slice(0,10);
-        means=labels.map(c=>Number(stats[c]?.mean||0));
-    }
-
-    if(!labels.length){
-        $('departmentChart').parentElement.innerHTML='<div class="empty">No numeric fields available.</div>';
-        return;
-    }
-
-    charts.push(new Chart($('departmentChart'),{
-        type:'bar',
-        data:{labels,datasets:[{
-            label:'Mean',
-            data:means,
-            backgroundColor:'#2aa1f4',
-            borderRadius:4
-        }]},
-        options:{
-            responsive:true,
-            maintainAspectRatio:false,
-            plugins:{legend:{display:false}},
-            scales:{x:axisOptions,y:axisOptions}
+            return response;
         }
-    }));
-}
 
-function renderGenericCategories(items){
-    if(!items.length){
-        $('ageChart').parentElement.innerHTML='<div class="empty">No categorical fields available.</div>';
-        return;
-    }
-
-    const first=items[0];
-    const labels=first.categories.map(x=>x.name);
-    const values=first.categories.map(x=>Number(x.count||0));
-
-    charts.push(new Chart($('ageChart'),{
-        type:'bar',
-        data:{labels,datasets:[{
-            label:first.column,
-            data:values,
-            backgroundColor:'#24ceb8',
-            borderRadius:4
-        }]},
-        options:{
-            responsive:true,
-            maintainAspectRatio:false,
-            plugins:{legend:{display:false}},
-            scales:{x:axisOptions,y:axisOptions}
+        // UTILS
+        function esc(v) {
+            return String(v ?? '').replace(/[&<>"']/g, c => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            }[c]));
         }
-    }));
-}
 
-function renderGenericTable(items){
-    const box=$('satisfactionTable');
-    if(!items.length){
-        box.innerHTML='<div class="empty">No numeric statistics available.</div>';
-        return;
-    }
-
-    box.innerHTML=`<div style="overflow:auto"><table style="width:100%;border-collapse:collapse;font-size:9px">
-        <thead><tr style="background:#0d223a;color:#9eb4ca">
-            <th style="padding:8px;text-align:left">COLUMN</th>
-            <th style="padding:8px;text-align:right">MEAN</th>
-            <th style="padding:8px;text-align:right">MEDIAN</th>
-            <th style="padding:8px;text-align:right">MIN</th>
-            <th style="padding:8px;text-align:right">MAX</th>
-        </tr></thead>
-        <tbody>${items.slice(0,8).map(x=>`<tr style="border-bottom:1px solid #173452;color:#a8bad0">
-            <td style="padding:8px">${esc(x.name)}</td>
-            <td style="padding:8px;text-align:right">${number(x.mean,2)}</td>
-            <td style="padding:8px;text-align:right">${number(x.median,2)}</td>
-            <td style="padding:8px;text-align:right">${number(x.min,2)}</td>
-            <td style="padding:8px;text-align:right">${number(x.max,2)}</td>
-        </tr>`).join('')}</tbody>
-    </table></div>`;
-}
-
-function renderGenericCategoryChart(items){
-    const box=$('educationChart');
-    if(!items.length){
-        box.parentElement.innerHTML='<div class="empty">No categorical data available.</div>';
-        return;
-    }
-
-    const first=items[0];
-    const labels=first.categories.map(x=>x.name);
-    const values=first.categories.map(x=>Number(x.count||0));
-
-    const chartLabels=labels.length?labels:['No data'];
-    const chartValues=values.length?values:[0];
-
-    charts.push(new Chart(box,{
-        type:'doughnut',
-        data:{labels:chartLabels,datasets:[{
-            data:chartValues,
-            backgroundColor:['#1b8fe6','#24cdb9','#625df4','#ffb950','#ff6683','#6d8cff'],
-            borderColor:'#08172a',
-            borderWidth:2
-        }]},
-        options:{
-            responsive:true,
-            maintainAspectRatio:false,
-            cutout:'60%',
-            plugins:{legend:{position:'right',labels:{color:'#91a8c0',font:{size:8},boxWidth:8}}}
+        function fmt(n, d = 0) {
+            const v = Number(n);
+            return Number.isFinite(v) ? v.toLocaleString(undefined, { maximumFractionDigits: d }) : '—';
         }
-    }));
-}
 
-function renderGenericAnomalies(anomalies){
-    const canvas=$('genderAge');
-    const labels=Object.keys(anomalies || {});
-    const values=labels.map(k=>Number(anomalies[k]?.count||0));
-
-    if(!labels.length){
-        canvas.parentElement.innerHTML='<div class="empty">No significant IQR anomalies detected.</div>';
-        return;
-    }
-
-    charts.push(new Chart(canvas,{
-        type:'doughnut',
-        data:{labels,datasets:[{
-            data:values,
-            backgroundColor:['#ff617e','#ff9c62','#f6ca50','#c96cff','#48a6ff','#35d3b3'],
-            borderColor:'#08172a',
-            borderWidth:2
-        }]},
-        options:{
-            responsive:true,
-            maintainAspectRatio:false,
-            cutout:'60%',
-            plugins:{legend:{position:'right',labels:{color:'#91a8c0',font:{size:8},boxWidth:8}}}
+        function toast(msg) {
+            const t = $('toast');
+            t.textContent = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 3000);
         }
-    }));
-}
 
-/* charts */
-const axisOptions={
-    ticks:{color:'#849bb4',font:{size:9}},
-    grid:{color:'#122b44'}
-};
+        function destroyCharts() {
+            charts.forEach(c => {
+                try { c.destroy(); } catch (e) {}
+            });
+            charts = [];
+        }
 
-function renderDepartment(items, stats){
-    let labels=[];
-    let values=[];
+        // LOAD DATA
+        async function loadAnalysis() {
+            try {
+                const res = await api('/api/analyses?page=1');
+                if (!res || !res.ok) throw new Error('Could not load analyses');
 
-    if(items.length){
-        labels=items.map(x=>x.name);
-        values=items.map(x=>Number(x.count||0));
-    }else{
-        labels=Object.keys(stats).slice(0,6);
-        values=labels.map(x=>Math.max(1,Number(stats[x]?.mean||0)));
-        if(!labels.length){labels=['No data'];values=[1]}
-    }
+                const data = await res.json();
+                const list = data.analyses || [];
 
-    charts.push(new Chart($('departmentChart'),{
-        type:'doughnut',
-        data:{
-            labels,
-            datasets:[{
-                data:values,
-                backgroundColor:['#1599ff','#1fb7ee','#27d6c0','#3279f0','#7a63f7','#24cf90'],
-                borderColor:'#09192b',
-                borderWidth:2
-            }]
-        },
-        options:{
-            responsive:true,
-            maintainAspectRatio:false,
-            cutout:'58%',
-            plugins:{
-                legend:{
-                    display:true,
-                    position:'right',
-                    labels:{
-                        color:'#96a9bf',
-                        font:{size:9},
-                        boxWidth:8,
-                        padding:8
-                    }
+                if (!list.length) {
+                    renderEmpty();
+                    return;
                 }
+
+                const id = list[0].id;
+                const detailRes = await api(`/api/analyses/${id}`);
+                if (!detailRes || !detailRes.ok) throw new Error('Could not load analysis');
+
+                currentAnalysis = await detailRes.json();
+                const a = currentAnalysis.analysis || currentAnalysis;
+
+                $('datasetInfo').textContent = `${a.filename} • ${fmt(a.rows)} rows • ${fmt(a.columns)} columns`;
+
+                renderDashboard();
+            } catch (error) {
+                console.error(error);
+                toast(error.message);
             }
         }
-    }));
-}
 
-function renderAge(items){
-    if(!items.length){
-        $('ageChart').parentElement.innerHTML='<div class="empty">No Age column available.</div>';
-        return;
-    }
+        // RENDER DASHBOARD
+        function renderDashboard() {
+            destroyCharts();
 
-    charts.push(new Chart($('ageChart'),{
-        type:'bar',
-        data:{
-            labels:items.map(x=>x.name),
-            datasets:[{
-                data:items.map(x=>Number(x.count||0)),
-                backgroundColor:'#2c9ef4',
-                borderRadius:4,
-                barPercentage:.76,
-                categoryPercentage:.72
-            }]
-        },
-        options:{
-            responsive:true,
-            maintainAspectRatio:false,
-            plugins:{legend:{display:false}},
-            scales:{
-                x:axisOptions,
-                y:axisOptions
-            }
-        }
-    }));
-}
+            const a = currentAnalysis.analysis || currentAnalysis;
+            const stats = a.statistics || {};
+            const insights = a.insights || [];
+            const quality = Math.min(100, Math.max(0, a.quality_score || 0));
+            const columns = a.column_names || [];
+            const numCols = Object.keys(stats);
 
-function renderSatisfaction(items, stats){
-    const box=$('satisfactionTable');
-
-    if(!items.length){
-        const fallback=Object.keys(stats).slice(0,6);
-        if(!fallback.length){
-            box.innerHTML='<div class="empty">No satisfaction data available.</div>';
-            return;
-        }
-        items=fallback.map((name,i)=>({
-            rating:name,
-            label:'Numeric',
-            employees:Number(currentAnalysis.rows||0),
-            attrition:0
-        }));
-    }
-
-    box.innerHTML=`
-        <div style="overflow:auto">
-        <table style="width:100%;border-collapse:collapse;font-size:9px">
-            <thead>
-                <tr style="background:#0d223a;color:#9eb4ca">
-                    <th style="padding:8px;text-align:left">RATING</th>
-                    <th style="padding:8px;text-align:left">LEVEL</th>
-                    <th style="padding:8px;text-align:right">EMPLOYEES</th>
-                    <th style="padding:8px;text-align:right">ATTRITION</th>
-                    <th style="padding:8px;text-align:right">RATE</th>
-                </tr>
-            </thead>
-            <tbody>
-                ${items.map(x=>{
-                    const employees=Number(x.employees||0);
-                    const attrition=Number(x.attrition||0);
-                    const rate=employees?attrition/employees*100:0;
-                    return `<tr style="border-bottom:1px solid #173452;color:#a8bad0">
-                        <td style="padding:8px">${esc(x.rating)}</td>
-                        <td style="padding:8px">${esc(x.label||'—')}</td>
-                        <td style="padding:8px;text-align:right">${number(employees)}</td>
-                        <td style="padding:8px;text-align:right">${number(attrition)}</td>
-                        <td style="padding:8px;text-align:right;color:#44d8a4">${number(rate,1)}%</td>
-                    </tr>`;
-                }).join('')}
-            </tbody>
-        </table></div>
-    `;
-}
-
-function renderEducation(items, departments, numericColumns){
-    let labels=[];
-    let values=[];
-
-    if(items.length){
-        labels=items.map(x=>x.name);
-        values=items.map(x=>Number(x.count||0));
-    }else if(departments.length){
-        labels=departments.map(x=>x.name);
-        values=departments.map(x=>Number(x.count||0));
-    }else{
-        labels=numericColumns.slice(0,6);
-        values=labels.map(x=>Number(currentAnalysis.statistics?.[x]?.mean||0));
-    }
-
-    if(!labels.length){
-        $('educationChart').parentElement.innerHTML='<div class="empty">No category data available.</div>';
-        return;
-    }
-
-    charts.push(new Chart($('educationChart'),{
-        type:'bar',
-        data:{
-            labels,
-            datasets:[{
-                data:values,
-                backgroundColor:'#257fdc',
-                borderRadius:4,
-                barPercentage:.75,
-                categoryPercentage:.72
-            }]
-        },
-        options:{
-            responsive:true,
-            maintainAspectRatio:false,
-            indexAxis:'y',
-            plugins:{legend:{display:false}},
-            scales:{
-                x:axisOptions,
-                y:{
-                    ticks:{color:'#8ea4bc',font:{size:9}},
-                    grid:{display:false}
-                }
-            }
-        }
-    }));
-}
-
-function renderGenderAge(items){
-    const box=$('genderAge');
-
-    if(!items.length){
-        box.innerHTML='<div class="empty">Gender + Age columns were not detected.</div>';
-        return;
-    }
-
-    box.innerHTML=`
-        <div style="display:grid;grid-template-columns:repeat(${Math.min(items.length,5)},1fr);gap:4px;align-items:start">
-            ${items.slice(0,5).map((x,i)=>`
-                <div style="min-width:0;text-align:center">
-                    <div style="height:140px;position:relative">
-                        <canvas id="ageGender${i}"></canvas>
-                        <div style="position:absolute;left:50%;top:49%;transform:translate(-50%,-50%);font-weight:850;font-size:12px;color:#dfefff">
-                            ${number(x.overall_rate,1)}%
-                            <div style="font-size:7px;color:#758da5;font-weight:500">rate</div>
+            // Stats Cards
+            const content = `
+                <div class="charts-grid">
+                    <div class="chart-card full">
+                        <div class="chart-header">
+                            <div class="chart-title">📊 Overview</div>
+                            <div class="chart-subtitle">Key metrics from your dataset</div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px;">
+                            <div style="padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                                <div style="font-size: 11px; color: #999; text-transform: uppercase; font-weight: 600;">Rows</div>
+                                <div style="font-size: 24px; font-weight: 700; color: #667eea; margin-top: 8px;">${fmt(a.rows)}</div>
+                            </div>
+                            <div style="padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                                <div style="font-size: 11px; color: #999; text-transform: uppercase; font-weight: 600;">Columns</div>
+                                <div style="font-size: 24px; font-weight: 700; color: #48bb78; margin-top: 8px;">${fmt(a.columns)}</div>
+                            </div>
+                            <div style="padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                                <div style="font-size: 11px; color: #999; text-transform: uppercase; font-weight: 600;">Numeric Fields</div>
+                                <div style="font-size: 24px; font-weight: 700; color: #f6ad55; margin-top: 8px;">${fmt(numCols.length)}</div>
+                            </div>
+                            <div style="padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                                <div style="font-size: 11px; color: #999; text-transform: uppercase; font-weight: 600;">Quality Score</div>
+                                <div style="font-size: 24px; font-weight: 700; color: #f56565; margin-top: 8px;">${fmt(quality, 1)}%</div>
+                            </div>
                         </div>
                     </div>
-                    <div style="font-size:8px;color:#8ca3bb;margin-top:1px">${esc(x.age_group)}</div>
                 </div>
-            `).join('')}
-        </div>
-    `;
 
-    items.slice(0,5).forEach((x,i)=>{
-        const labels=Object.keys(x.gender_rates || {});
-        const values=labels.map(g=>Number(x.gender_rates[g]||0));
-        charts.push(new Chart($('ageGender'+i),{
-            type:'doughnut',
-            data:{
-                labels,
-                datasets:[{
-                    data:values.length?values:[1],
-                    backgroundColor:['#0c5f74','#2bb4c0'],
-                    borderColor:'#08172a',
-                    borderWidth:2
-                }]
-            },
-            options:{
-                responsive:true,
-                maintainAspectRatio:false,
-                cutout:'64%',
-                plugins:{
-                    legend:{
-                        display:i===0,
-                        position:'bottom',
-                        labels:{color:'#8ea4ba',font:{size:7},boxWidth:7,padding:5}
+                <div class="charts-grid">
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <div class="chart-title">📈 Numeric Summary</div>
+                            <div class="chart-subtitle">Mean values across all numeric columns</div>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="numericChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <div class="chart-title">🎯 Data Distribution</div>
+                            <div class="chart-subtitle">Columns by type</div>
+                        </div>
+                        <div class="chart-container small">
+                            <canvas id="typeChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="charts-grid">
+                    <div class="chart-card full">
+                        <div class="chart-header">
+                            <div class="chart-title">🔗 Correlation Matrix</div>
+                            <div class="chart-subtitle">Relationship between numeric fields</div>
+                        </div>
+                        <div id="correlationMatrix" style="overflow-x: auto;"></div>
+                    </div>
+                </div>
+
+                <div class="charts-grid">
+                    <div class="chart-card full">
+                        <div class="chart-header">
+                            <div class="chart-title">✨ AI Insights</div>
+                            <div class="chart-subtitle">Automatically generated analysis</div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+                            ${(insights.length ? insights : ['No specific insights generated']).map((insight, i) => `
+                                <div style="padding: 15px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #667eea;">
+                                    <div style="font-size: 12px; line-height: 1.6; color: #333;">✦ ${esc(insight)}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="data-table">
+                    <div class="table-header">
+                        <div class="table-title">📋 Column Details</div>
+                        <div class="table-subtitle">${columns.length} fields detected</div>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Column Name</th>
+                                <th>Type</th>
+                                <th>Stats</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${columns.slice(0, 20).map(col => {
+                                const st = stats[col];
+                                return `
+                                    <tr>
+                                        <td><strong>${esc(col)}</strong></td>
+                                        <td>${a.data_types ? esc(String(a.data_types[col]).split('64')[0]) : '—'}</td>
+                                        <td>${st ? `Mean: ${fmt(st.mean, 2)} | Min: ${fmt(st.min, 2)} | Max: ${fmt(st.max, 2)}` : 'No stats'}</td>
+                                    </tr>
+                                `;
+                            }).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+
+            $('dashboardContent').innerHTML = content;
+
+            // Render Charts
+            renderNumericChart(stats, numCols);
+            renderTypeChart(a.data_types || {});
+            renderCorrelation(a.correlations || {});
+        }
+
+        function renderNumericChart(stats, cols) {
+            const labels = cols.slice(0, 10);
+            const data = labels.map(c => Number(stats[c]?.mean || 0));
+
+            if (!labels.length) return;
+
+            const ctx = $('numericChart');
+            if (!ctx) return;
+
+            charts.push(new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels,
+                    datasets: [{
+                        label: 'Mean',
+                        data,
+                        backgroundColor: '#667eea',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: '#f0f0f0' } }
                     }
                 }
-            }
-        }));
-    });
-}
+            }));
+        }
 
-function renderQualityGauge(score){
-    $('qualityGauge').style.background=`conic-gradient(var(--green) ${score}%, #1a2d45 0)`;
-}
+        function renderTypeChart(types) {
+            const numeric = Object.values(types).filter(t => /int|float/.test(String(t))).length;
+            const categorical = Object.keys(types).length - numeric;
 
-function renderNumeric(stats,cols){
-    if(!cols.length){
-        $('numericChart').parentElement.innerHTML='<div class="empty">No numeric columns available.</div>';
-        return;
-    }
+            const ctx = $('typeChart');
+            if (!ctx) return;
 
-    const labels=cols.slice(0,12);
-    charts.push(new Chart($('numericChart'),{
-        type:'bar',
-        data:{
-            labels,
-            datasets:[
-                {label:'Mean',data:labels.map(c=>Number(stats[c]?.mean||0)),backgroundColor:'#2d9dff',borderRadius:4},
-                {label:'Max',data:labels.map(c=>Number(stats[c]?.max||0)),backgroundColor:'#2ccfb6',borderRadius:4}
-            ]
-        },
-        options:{
-            responsive:true,
-            maintainAspectRatio:false,
-            plugins:{
-                legend:{
-                    display:true,
-                    labels:{color:'#91a8c0',font:{size:9}}
+            charts.push(new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Numeric', 'Categorical'],
+                    datasets: [{
+                        data: [numeric, categorical],
+                        backgroundColor: ['#667eea', '#48bb78'],
+                        borderColor: 'white',
+                        borderWidth: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom' } }
                 }
-            },
-            scales:{x:axisOptions,y:axisOptions}
-        }
-    }));
-}
-
-function renderHeatmap(corr){
-    const box=$('heatmap');
-    const labels=Object.keys(corr || {});
-
-    if(labels.length<2){
-        box.innerHTML='<div class="empty" style="min-height:205px">At least two numeric columns are required.</div>';
-        return;
-    }
-
-    const color=v=>{
-        const x=Math.max(-1,Math.min(1,Number(v)||0));
-        const hue=x>=0?205:345;
-        const light=28+Math.abs(x)*22;
-        return `hsl(${hue} 70% ${light}%)`;
-    };
-
-    let html='<div class="heatmap">';
-    html+=`<div class="heat-row"><div class="heat-label"></div>${labels.map(x=>`<div class="heat-cell" style="background:#11283f">${esc(x)}</div>`).join('')}</div>`;
-
-    labels.forEach(row=>{
-        html+=`<div class="heat-row"><div class="heat-label">${esc(row)}</div>`;
-        labels.forEach(col=>{
-            const value=Number(corr[row]?.[col]);
-            html+=`<div class="heat-cell" style="background:${color(value)}">${Number.isFinite(value)?value.toFixed(2):'—'}</div>`;
-        });
-        html+='</div>';
-    });
-
-    html+='</div>';
-    box.innerHTML=html;
-}
-
-/* upload */
-function openUpload(){
-    $('uploadModal').classList.add('show');
-}
-function closeUpload(){
-    $('uploadModal').classList.remove('show');
-    resetUpload();
-}
-function resetUpload(){
-    $('fileInput').value='';
-    $('selectedFile').textContent='No file selected';
-    $('uploadStatus').textContent='';
-    $('uploadBtn').disabled=true;
-    $('uploadBtn').textContent='Upload & Analyze';
-}
-function selectFile(file){
-    $('selectedFile').textContent=`${file.name} • ${(file.size/1024/1024).toFixed(2)} MB`;
-    $('uploadBtn').disabled=false;
-    $('uploadStatus').textContent='';
-}
-$('fileInput').addEventListener('change',e=>{
-    if(e.target.files[0])selectFile(e.target.files[0]);
-});
-
-const drop=$('dropzone');
-drop.addEventListener('dragover',e=>{e.preventDefault();drop.classList.add('drag')});
-drop.addEventListener('dragleave',()=>drop.classList.remove('drag'));
-drop.addEventListener('drop',e=>{
-    e.preventDefault();
-    drop.classList.remove('drag');
-
-    const file=e.dataTransfer.files[0];
-    if(!file)return;
-
-    if(!/\.(csv|xlsx|xls)$/i.test(file.name)){
-        $('uploadStatus').textContent='❌ Only CSV, XLSX and XLS files are supported.';
-        return;
-    }
-
-    try{
-        const dt=new DataTransfer();
-        dt.items.add(file);
-        $('fileInput').files=dt.files;
-        selectFile(file);
-    }catch(err){
-        $('uploadStatus').textContent='Please use Choose File.';
-    }
-});
-
-async function uploadNewFile(){
-    const file=$('fileInput').files[0];
-    if(!file){
-        $('uploadStatus').textContent='❌ Please choose a file first.';
-        return;
-    }
-
-    const btn=$('uploadBtn');
-    btn.disabled=true;
-    btn.textContent='Uploading...';
-    $('uploadStatus').textContent='Uploading and analyzing dataset...';
-
-    try{
-        const fd=new FormData();
-        fd.append('file',file);
-
-        const response=await api('/api/upload',{
-            method:'POST',
-            body:fd
-        });
-
-        if(!response)return;
-
-        let data={};
-        try{data=await response.json()}catch(e){}
-
-        if(!response.ok){
-            throw new Error(data.error || data.message || 'Upload failed.');
+            }));
         }
 
-        const uploaded=data.analysis || data;
-        const id=uploaded.id || uploaded.analysis_id;
-
-        if(!id){
-            throw new Error('Upload succeeded but no analysis ID was returned.');
-        }
-
-        $('uploadStatus').textContent='✓ Upload complete. Loading dashboard...';
-        closeUpload();
-
-        /* Directly load selected newly uploaded analysis. */
-        const detail=await api('/api/analyses/'+id);
-        if(!detail || !detail.ok){
-            throw new Error('Could not load the uploaded analysis.');
-        }
-
-        const detailJson=await detail.json();
-        currentAnalysis=detailJson.analysis || detailJson;
-
-        board=null;
-        try{
-            const boardResponse=await api('/api/analyses/'+id+'/dashboard');
-            if(boardResponse && boardResponse.ok){
-                const boardJson=await boardResponse.json();
-                board=boardJson.dashboard || {};
+        function renderCorrelation(corr) {
+            const cols = Object.keys(corr || {});
+            if (cols.length < 2) {
+                $('correlationMatrix').innerHTML = '<div style="padding: 20px; text-align: center; color: #999;">Need at least 2 numeric columns</div>';
+                return;
             }
-        }catch(e){}
 
-        renderDashboard();
-        toast('Dataset uploaded successfully.');
-        window.scrollTo({top:0,behavior:'smooth'});
+            let html = '<div style="display: grid; gap: 2px;">';
+            html += '<div style="display: grid; grid-template-columns: 100px ' + cols.map(() => '60px').join(' ') + '; gap: 2px;">';
+            html += '<div style="background: #f0f0f0; padding: 8px; font-weight: 700; font-size: 11px;"></div>';
 
-    }catch(error){
-        console.error(error);
-        $('uploadStatus').textContent='❌ '+error.message;
-        btn.disabled=false;
-        btn.textContent='Upload & Analyze';
-    }
-}
+            cols.forEach(c => {
+                html += `<div style="background: #f0f0f0; padding: 8px; font-weight: 700; font-size: 10px; text-align: center;">${esc(c.substring(0, 8))}</div>`;
+            });
 
-async function refreshDashboard(){
-    try{
-        document.body.classList.add('loading');
-        await loadLatestAnalysis();
-        toast('Dashboard refreshed.');
-    }catch(error){
-        console.error(error);
-        toast(error.message);
-    }finally{
-        document.body.classList.remove('loading');
-    }
-}
+            cols.forEach(row => {
+                html += `<div style="background: #f8f9fa; padding: 8px; font-weight: 600; font-size: 10px;">${esc(row.substring(0, 8))}</div>`;
+                cols.forEach(col => {
+                    const val = Number(corr[row]?.[col] || 0);
+                    const hue = val > 0 ? 180 : 0;
+                    const sat = Math.abs(val) * 100;
+                    const light = 50 - Math.abs(val) * 20;
+                    html += `<div style="background: hsl(${hue}, ${sat}%, ${light}%); color: white; padding: 8px; font-size: 10px; text-align: center; border-radius: 4px; font-weight: 600;">${val.toFixed(2)}</div>`;
+                });
+            });
 
-async function logout(){
-    try{
-        await api('/api/auth/logout',{method:'POST'});
-    }finally{
-        window.location.replace('/login');
-    }
-}
+            html += '</div></div>';
+            $('correlationMatrix').innerHTML = html;
+        }
 
-(async function init(){
-    try{
-        await loadUser();
-        await loadLatestAnalysis();
-    }catch(error){
-        console.error(error);
-        $('dashboardArea').innerHTML=`
-            <div class="card empty">
-                <div>
-                    <div style="font-size:34px">⚠️</div>
-                    <div class="empty-title">Unable to load dashboard</div>
-                    <div class="empty-sub">${esc(error.message)}</div>
-                    <button class="btn primary" style="margin-top:12px" onclick="refreshDashboard()">Try Again</button>
+        function renderEmpty() {
+            $('filterSection').style.display = 'none';
+            $('statsGrid').innerHTML = '';
+            $('dashboardContent').innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-icon">📁</div>
+                    <div class="empty-title">No Data Found</div>
+                    <div class="empty-text">Upload your first CSV or Excel file to get started with analytics.</div>
+                    <button class="btn btn-primary" onclick="openUpload()">📤 Upload Dataset</button>
                 </div>
-            </div>
-        `;
-    }
-})();
-</script>
+            `;
+        }
+
+        // UPLOAD
+        function openUpload() {
+            $('uploadModal').classList.add('show');
+        }
+
+        function closeUpload() {
+            $('uploadModal').classList.remove('show');
+            $('fileInput').value = '';
+            $('selectedFile').textContent = '';
+            $('uploadStatus').textContent = '';
+            $('uploadBtn').disabled = true;
+        }
+
+        $('fileInput').addEventListener('change', (e) => {
+            if (e.target.files[0]) {
+                $('selectedFile').textContent = `✓ ${e.target.files[0].name}`;
+                $('uploadBtn').disabled = false;
+            }
+        });
+
+        const drop = $('dropzone');
+        drop.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            drop.classList.add('drag');
+        });
+        drop.addEventListener('dragleave', () => drop.classList.remove('drag'));
+        drop.addEventListener('drop', (e) => {
+            e.preventDefault();
+            drop.classList.remove('drag');
+            const file = e.dataTransfer.files[0];
+            if (file && /\.(csv|xlsx|xls)$/i.test(file.name)) {
+                const dt = new DataTransfer();
+                dt.items.add(file);
+                $('fileInput').files = dt.files;
+                $('selectedFile').textContent = `✓ ${file.name}`;
+                $('uploadBtn').disabled = false;
+            }
+        });
+
+        async function uploadFile() {
+            const file = $('fileInput').files[0];
+            if (!file) return;
+
+            $('uploadBtn').disabled = true;
+            $('uploadStatus').textContent = 'Uploading...';
+
+            try {
+                const fd = new FormData();
+                fd.append('file', file);
+
+                const res = await api('/api/upload', {
+                    method: 'POST',
+                    body: fd
+                });
+
+                if (!res || !res.ok) throw new Error('Upload failed');
+
+                const data = await res.json();
+                currentAnalysis = data;
+
+                closeUpload();
+                await loadAnalysis();
+                toast('File uploaded successfully!');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            } catch (error) {
+                $('uploadStatus').textContent = `❌ ${error.message}`;
+                $('uploadBtn').disabled = false;
+            }
+        }
+
+        async function refreshDashboard() {
+            document.body.classList.add('loading');
+            try {
+                await loadAnalysis();
+                toast('Dashboard refreshed!');
+            } catch (error) {
+                toast(error.message);
+            } finally {
+                document.body.classList.remove('loading');
+            }
+        }
+
+        // INIT
+        loadAnalysis();
+    </script>
 </body>
 </html>
